@@ -1,5 +1,5 @@
 #include <iostream>
-#include <set>
+#include <unordered_set>
 
 class GreedyAlgorithm{
     private:
@@ -9,14 +9,14 @@ class GreedyAlgorithm{
     public:
         int n;  // holds size of ground set, indexed from 0 to n-1
         int budget;
-        std::set <int> curr_set;  // will hold elements selected to be in our set
+        std::unordered_set <int> curr_set;  // will hold elements selected to be in our set
 
         GreedyAlgorithm(int N, int B){
             n = N;
             budget = B;
         };
 
-        void run_greedy(double (*cost_function)(std::set <int>)){
+        void run_greedy(double (*cost_function)(std::unordered_set <int>)){
             int counter=0;
             while (curr_budget < budget){
                 counter++;
@@ -36,8 +36,8 @@ class GreedyAlgorithm{
         };
 
     private:
-        void greedy_step(double (*F)(std::set <int>)){
-            std::set <int> test_set(curr_set);
+        void greedy_step(double (*F)(std::unordered_set <int>)){
+            std::unordered_set <int> test_set(curr_set);
             double marginal_val = 0;
             double new_marginal_val;
             int new_element;
