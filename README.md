@@ -3,14 +3,15 @@ A library for combinatorial optimization (subset selection) problems using a gen
 
 This library implements a handful of basic algorithms for submodular function maximization.  In particular, they solve the problem:
 
-$$ \begin{array}{cc}
-\underset{S\subseteq V}{\text{maximize}} & F(S) \\
-\text{subject to} & \vert S \vert \leq B
-\end{array} $$,
+ ```math
+\begin{array}{cc} \underset{S\subseteq V}{\text{maximize}} & F(S) \\ \text{subject to} & \vert S \vert \leq B\end{array}
+```
 
 where $F:2^V\to\mathbb{R}$ is a submodular function and $V$ is a ground set of $n$ elements.  Submodular functions satisfy the inequality:
 
-$$ F(A) + F(B) \geq F(A\cup B) + F(A\cap B). $$
+$$ F(S) + F(T) \geq F(S\cup T) + F(S\cap T), $$
+
+for any $S, T \subseteq V$.
 
 More intuitively, these functions exhibit the property of diminishing returns.  For such functions, greedy algorithms are both efficient and provably near-optimal.
 
