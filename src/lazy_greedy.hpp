@@ -1,63 +1,13 @@
+#pragma once
 #include <queue>
-#include <set>
+#include <unordered_set>
 #include <iostream>
 #include <vector>
 #include "element.hpp"
-
+#include "cost_function.hpp"
 // WIP
 // TODO: have cost_function overloaded to act on single elements, not just sets of elements
 // TODO: have cost function become member object?
-
-
-class Element{
-    public:
-        int id;
-        double value;
-        // constructor with values
-        Element(int id, double value){
-            id = id;
-            value = value;
-        }
-        // constructor without values
-        Element(int id){
-            id = id;
-            value = 666;
-        }
-        Element(const Element& el){
-            id = el.id;
-            value = el.value;
-        }
-        Element(){
-            id = 999;
-            value = 111;
-        }
-        // overloading the < operator for elements
-        bool operator< (const Element& el){
-            if (el.value >= value){
-                return true;
-            } else {
-                return false;
-            }
-        }
-        friend bool operator== (const Element& e1, const Element& e2);
-        friend bool operator!= (const Element& e1, const Element& e2);
-        friend bool operator< (const Element& e1, const Element& e2);
-        void set_value(const double& val){
-            value = val;
-        }
-};
-
-bool operator== (const Element& e1, const Element& e2){
-    return e1.id == e2.id;
-}
-
-bool operator!= (const Element& e1, const Element& e2){
-    return e1.id != e2.id;
-}
-
-bool operator< (const Element& e1, const Element& e2){
-    return e1.value <= e2.value;
-}
 
 
 class LazyGreedy{
@@ -68,7 +18,7 @@ class LazyGreedy{
     public:
         int n;  // holds size of ground set, indexed from 0 to n-1
         int budget;
-        std::set <Element> curr_set = std::set<Element>();  // will hold elements selected to be in our set
+        std::unordered_set <Element> curr_set;  // will hold elements selected to be in our set
         std::priority_queue <Element> marginals; // will hold marginals
 
         LazyGreedy(int N, int B){
@@ -76,50 +26,43 @@ class LazyGreedy{
             budget = B;
         };
 
-        void run_greedy(double (*cost_function)(std::set <Element>)){
+        void run_greedy(CostFunction &cost_function){
             int counter=1;
             first_iteration(cost_function);  // initializes marginals in first greedy iteration
-            std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
+            std::cout<< "Performed lazy greedy algorithm iteration: " << counter << std::endl;
             print_status();
             while (curr_budget < budget){
                 counter++;
                 lazy_greedy_step(cost_function);
-                std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
+                std::cout<< "Performed lazy greedy algorithm iteration: " << counter << std::endl;
                 print_status();
             }
         };
 
         void print_status(){
-            std::cout << "Current set: {";
-            for (auto el:curr_set){
-                std::cout<< el.id << ",";
-            }
-            std::cout <<"}" << std::endl;
+            std::cout << "Current set:" << curr_set << std::endl;
             std::cout<<"Current val: " << curr_val << std::endl;
         };
 
     private:
 
         // Special function for first iteration, populates priority queue
-        void first_iteration(double (*F)(std::set <Element>)){
-            std::set<Element> test_set;
-            Element test_el;
+        void first_iteration(CostFunction &F){
+            std::unordered_set<Element> test_set;
+            Element candidate;
 
             // iterate through all candidate elements
             for (int i = 0; i < n; i++){
-                test_el.id = i;
-                test_set.insert(test_el);
+                candidate.id = i;
+                test_set.insert(candidate);
                 // test_set.emplace(5, 111);  // add element to test set
                 
-                std::cout<<"test set: {";
-                for(auto a:test_set){
-                    std::cout<< a.id << "~" << a.value << ", ";
-                }
-                std::cout<<"}";
-                // std::cout<< test_set.size() << std::endl;
+                std::cout<<"test set:" << test_set << std::endl;
                 std::cout<< "F(set) : " << F(test_set) << std::endl;
-                test_el.set_value(F(test_set) - curr_val);
-                marginals.push(test_el);  // insert element into priority queue with priority
+                candidate.set_value(F(test_set) - curr_val);
+
+                // note that <Element> is sorted by VALUE
+                marginals.push(candidate);  // insert element into priority queue with priority
                 std::cout<<"MARGINALS top:" << marginals.top().id << "~" << marginals.top().value;
                 std::cout<<" size:" << marginals.size() << std::endl;
                 test_set = curr_set; // refresh test set
@@ -130,13 +73,13 @@ class LazyGreedy{
             curr_budget++;  // update budget
         }
 
-        void lazy_greedy_step(double (*F)(std::set <Element>)){
-            std::set <Element> test_set = curr_set;
+        void lazy_greedy_step(CostFunction &F){
+            std::unordered_set <Element> test_set = curr_set;
             Element el;
 
             // iterate through all candidate element IDs
             for (int i=0; i < n; i++){
-                el.id = marginals.top().id;
+                el = marginals.top();
                 test_set.insert(el);  // pull top of current queue
                 marginals.pop();  // pop this element from queue
                 // test_set.insert(el);  // add it to testing set
