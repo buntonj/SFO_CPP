@@ -2,6 +2,7 @@
 #include <vector>
 #include "vanilla_greedy.hpp"
 #include "lazy_greedy.hpp"
+#include "constraint.hpp"
 
 
 int main(){
@@ -15,11 +16,15 @@ int main(){
         weights.push_back(float(i)*float(i));
     }
 
-    CostFunction* cardinality = new Modular(weights);
+    CostFunction* cardinality = new Modular;
+    CostFunction* modular = new Modular(weights);
     CostFunction* sqrtmodular = new SquareRootModular;
+    Constraint* card = new Knapsack(budget);
+    greedy.add_constraint(card); // add the cardinality constraint
     std::cout<< "Successfully built greedy algorithms." <<std::endl;
     std::cout<< "Running vanilla greedy..." << std::endl;
-    greedy.run_greedy(*sqrtmodular);
-    std::cout<< "Running lazy greedy..." << std::endl;
-    lazygreedy.run_greedy(*sqrtmodular);
+    greedy.run_greedy(*modular);
+    // greedy.run_greedy(*sqrtmodular);
+    // std::cout<< "Running lazy greedy..." << std::endl;
+    // lazygreedy.run_greedy(*sqrtmodular);
 }

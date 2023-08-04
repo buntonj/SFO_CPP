@@ -5,9 +5,6 @@
 #include <vector>
 #include "element.hpp"
 #include "cost_function.hpp"
-// WIP
-// TODO: have cost_function overloaded to act on single elements, not just sets of elements
-// TODO: have cost function become member object?
 
 
 class LazyGreedy{
