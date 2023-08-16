@@ -51,7 +51,7 @@ class Knapsack : public Constraint{
             budget = B;
         }
 
-        bool test_membership(Element &el){
+        bool test_membership(const Element &el){
             return modular(el) <= budget;
         }
 

@@ -7,7 +7,7 @@
 
 class CostFunction{
     public:
-        const virtual double operator()(std::unordered_set<Element> &set) = 0;
+        const virtual double operator()(const std::unordered_set<Element> &set) = 0;
     // virtual double operator()(Element) = 0;
 };
 
@@ -29,7 +29,7 @@ class Modular : public CostFunction{
             weights.insert({0, 1});
         }
 
-        const double operator()(std::unordered_set<Element> &set){
+        const double operator()(const std::unordered_set<Element> &set){
             if (weights.size() == 1){
                 return (weights.begin()->second)*double(set.size());
             }
@@ -40,7 +40,7 @@ class Modular : public CostFunction{
             return val;
         }
 
-        const double operator()(Element &el){
+        const double operator()(const Element &el){
             if (weights.size() == 1){
                 return (weights.begin()->second);
             } else{
@@ -54,7 +54,7 @@ class SquareRootModular: public CostFunction{
     public:
         Modular modular_part;
 
-        SquareRootModular(Modular &m){
+        SquareRootModular(const Modular &m){
             modular_part = m;
         }
 
@@ -62,11 +62,11 @@ class SquareRootModular: public CostFunction{
             modular_part = Modular();
         }
 
-        const double operator()(std::unordered_set<Element> &set){
+        const double operator()(const std::unordered_set<Element> &set){
             return std::sqrt(modular_part(set));
         }
 
-        const double operator()(Element &el){
+        const double operator()(const Element &el){
             return std::sqrt(modular_part(el));
         }
 

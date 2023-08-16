@@ -8,7 +8,6 @@
 
 class GreedyAlgorithm{
     private:
-        int curr_budget = 0;  // number of elements currently in set
         double curr_val = 0;  // current value of elements in set
         Constraint *constraint;
         bool constraint_saturated = false;
@@ -16,12 +15,15 @@ class GreedyAlgorithm{
 
     public:
         int n;  // holds size of ground set, indexed from 0 to n-1
-        int budget;
         std::unordered_set <Element> curr_set;  // will hold elements selected to be in our set
 
-        GreedyAlgorithm(int &N, int &B){
+        GreedyAlgorithm(int &N){
             n = N;
-            budget = B;
+        };
+
+        GreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
+            n = N;
+            add_constraint(new Knapsack(B));
         };
 
         void run_greedy(CostFunction &C){
@@ -64,7 +66,7 @@ class GreedyAlgorithm{
                 test_set.insert(candidate);
 
                 // check if adding the element violates the constraint
-                if(! constraint->test_membership(test_set)){  // TODO: somehow pre-empt doing yet another greedy iter to check feasibility?
+                if(! constraint->test_membership(test_set)){
                     continue;
                 }
 
