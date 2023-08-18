@@ -60,7 +60,7 @@ struct hash<Element> {
         return id_hash; // ^ val_hash;
     }
     };
-} 
+}
 
 std::ostream& operator<<(std::ostream& os, const Element& el){
     os << el.id << "~" << el.value;
