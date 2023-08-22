@@ -12,9 +12,11 @@ class GreedyAlgorithm{
         constraint::Constraint *constraint;
         bool constraint_saturated = false;
         int MAXITER = 15;
+        std::unordered_set<Element*> *ground_set;  // pointer to ground set of elements
+        std::unordered_map<Element*, double> marginal_gains;  // will hold marginal benefit of each element
 
     public:
-        int n;  // holds size of ground set, indexed from 0 to n-1
+        int n = 0;  // holds size of ground set, indexed from 0 to n-1
         std::unordered_set <Element> curr_set;  // will hold elements selected to be in our set
 
         GreedyAlgorithm(int &N){
@@ -26,7 +28,37 @@ class GreedyAlgorithm{
             add_constraint(new constraint::Knapsack(B));
         };
 
+        GreedyAlgorithm(std::unordered_set<Element*> *V){
+            this->n = V->size();
+            this->ground_set = V;
+        };
+
+        GreedyAlgorithm(std::unordered_set<Element*> *V, int &B){
+            this->n = V->size();
+            this->ground_set = V;
+            this->add_constraint(new constraint::Knapsack(B));
+        };
+
+        void set_ground_set(std::unordered_set<Element*> *V){
+            this->ground_set = V;
+            this->n = V->size();
+        }
+
+        void run_greedy(costfunction::CostFunction &C, std::unordered_set<Element*> *V){
+        //  Can only call greedy in this way if it already knows about a non-empty ground set
+            if(V->size() < 1){
+                std::cout << "Ground set is empty!" << endl;
+                return;
+            } else{
+                this->set_ground_set(V);
+                this->run_greedy(C);
+            }
+        }
+
         void run_greedy(costfunction::CostFunction &C){
+            if(this->n < 1){
+                std::cout << "No ground set given!" << std::endl;  //should be replaced with throw
+            }
             int counter=0;
             while (!constraint_saturated && counter < MAXITER){
                 counter++;
