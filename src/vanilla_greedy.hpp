@@ -9,7 +9,7 @@
 class GreedyAlgorithm{
     private:
         double curr_val = 0;  // current value of elements in set
-        Constraint *constraint;
+        constraint::Constraint *constraint;
         bool constraint_saturated = false;
         int MAXITER = 15;
 
@@ -23,10 +23,10 @@ class GreedyAlgorithm{
 
         GreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
             n = N;
-            add_constraint(new Knapsack(B));
+            add_constraint(new constraint::Knapsack(B));
         };
 
-        void run_greedy(CostFunction &C){
+        void run_greedy(costfunction::CostFunction &C){
             int counter=0;
             while (!constraint_saturated && counter < MAXITER){
                 counter++;
@@ -36,11 +36,11 @@ class GreedyAlgorithm{
             }
         };
 
-        void run_greedy(CostFunction &C, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction &C, bool cost_benefit){
             if(!cost_benefit){
                 // if not asking for cost-benefit alg, run vanilla greedy
                 run_greedy(C);
-            } else if (Knapsack* k = dynamic_cast<Knapsack*>(constraint); k != nullptr){
+            } else if (constraint::Knapsack* k = dynamic_cast<constraint::Knapsack*>(constraint); k != nullptr){
                 // if asking for cost-benefit, check that constraint is a knapsack one
                 // if it is, k becomes a pointer to derived Constraint::Knapsack type
                 int counter=0;
@@ -61,12 +61,12 @@ class GreedyAlgorithm{
             std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
         };
 
-        void add_constraint(Constraint *C){
+        void add_constraint(constraint::Constraint *C){
             constraint = C;
         }
 
     private:
-        void greedy_step(CostFunction &F){
+        void greedy_step(costfunction::CostFunction &F){
             std::unordered_set <Element> test_set(curr_set);
             Element candidate;
             Element best(0, -DBL_MAX);
@@ -108,7 +108,7 @@ class GreedyAlgorithm{
             }
         };
 
-        void cost_benefit_greedy_step(CostFunction &F, Knapsack *K, double &curr_budget){
+        void cost_benefit_greedy_step(costfunction::CostFunction &F, constraint::Knapsack *K, double &curr_budget){
             std::unordered_set <Element> test_set(curr_set);
             Element candidate;
             Element best(0, -DBL_MAX);

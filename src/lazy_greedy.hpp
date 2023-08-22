@@ -12,7 +12,7 @@
 class LazyGreedy{
     private:
         double curr_val = 0;  // current value of elements in set
-        Constraint *constraint;
+        constraint::Constraint *constraint;
         bool constraint_saturated = false;
         int MAXITER = 50;
 
@@ -27,10 +27,10 @@ class LazyGreedy{
 
         LazyGreedy(const int &N, const int &B){
             n = N;
-            add_constraint(new Knapsack(B));
+            add_constraint(new constraint::Knapsack(B));
         };
 
-        void run_greedy(CostFunction &cost_function){
+        void run_greedy(costfunction::CostFunction &cost_function){
             clear_marginals();
             int counter=1;
             first_iteration(cost_function);  // initializes marginals in first greedy iteration
@@ -44,11 +44,11 @@ class LazyGreedy{
             }
         };
 
-        void run_greedy(CostFunction &cost_function, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction &cost_function, bool cost_benefit){
             clear_marginals();
             if(!cost_benefit){
                 run_greedy(cost_function);
-            } else if(Knapsack* k = dynamic_cast<Knapsack*>(constraint); k != nullptr){
+            } else if(constraint::Knapsack* k = dynamic_cast<constraint::Knapsack*>(constraint); k != nullptr){
                 int counter = 1;
                 double budget = 0;
                 cost_benefit_first_iteration(cost_function, k, budget);  // initializes marginals in first greedy iteration
@@ -68,14 +68,14 @@ class LazyGreedy{
             std::cout<<"Current val: " << curr_val << std::endl;
         };
 
-        void add_constraint(Constraint *C){
+        void add_constraint(constraint::Constraint *C){
             constraint = C;
         }
 
     private:
 
         // Special function for first iteration, populates priority queue
-        void first_iteration(CostFunction &F){
+        void first_iteration(costfunction::CostFunction &F){
             std::unordered_set<Element> test_set;
             Element candidate;
 
@@ -111,7 +111,7 @@ class LazyGreedy{
         }
 
                 // Special function for first iteration, populates priority queue
-        void cost_benefit_first_iteration(CostFunction &F, Knapsack* K, double curr_budget){
+        void cost_benefit_first_iteration(costfunction::CostFunction &F, constraint::Knapsack* K, double curr_budget){
             std::unordered_set<Element> test_set;
             Element candidate;
 
@@ -147,7 +147,7 @@ class LazyGreedy{
             }
         }
 
-        void lazy_greedy_step(CostFunction &F){
+        void lazy_greedy_step(costfunction::CostFunction &F){
             std::unordered_set <Element> test_set = curr_set;
             Element candidate;
 
@@ -187,7 +187,7 @@ class LazyGreedy{
             }
         };
 
-        void cost_benefit_lazy_greedy_step(CostFunction &F, Knapsack* K, double curr_budget){
+        void cost_benefit_lazy_greedy_step(costfunction::CostFunction &F, constraint::Knapsack* K, double curr_budget){
             std::unordered_set <Element> test_set = curr_set;
             Element candidate;
 

@@ -16,12 +16,13 @@ int main(){
         weights.push_back(float(i)*float(i));
     }
 
-    CostFunction* cardinality = new Modular;
-    CostFunction* modular = new Modular(weights);
-    CostFunction* sqrtmodular = new SquareRootModular;
-    Constraint* card = new Knapsack(budget);
+    costfunction::CostFunction* cardinality = new costfunction::Modular;
+    costfunction::CostFunction* modular = new costfunction::Modular(weights);
+    costfunction::CostFunction* sqrtmodular = new costfunction::SquareRootModular;
+    constraint::Constraint* card = new constraint::Knapsack(budget);
+    constraint::Constraint* crd = new constraint::Cardinality(budget);
     greedy.add_constraint(card); // add the cardinality constraint
-    lazygreedy.add_constraint(card);
+    lazygreedy.add_constraint(crd);
     std::cout<< "Successfully built greedy algorithms." <<std::endl;
     std::cout<< "Running vanilla greedy..." << std::endl;
     greedy.run_greedy(*modular);

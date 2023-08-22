@@ -5,73 +5,81 @@
 #include<iostream>
 #include "element.hpp"
 
-class Constraint{
-    public:
-        Constraint(){};
-    
-        // No constraint defined at high level, so just always return true.
-        virtual const bool test_membership(std::unordered_set<Element> &set){
-            return true;
-        }
-
-        virtual const bool test_membership(Element &el){
-            return true;
-        }
-
-        virtual const bool is_saturated(Element &el){
-            return false;
-        }
-
-        virtual const bool is_saturated(std::unordered_set<Element> &set){
-            return false;
-        }
-};
-
-
-class Knapsack : public Constraint{
-    // knapsack constraints are secretly just Modular functions with an upper bound
-    public:
-        Modular modular;
-        double budget;
-
-        template<typename T>
-        Knapsack(const T &wts, const double &B){
-            modular = Modular(wts);
-            budget = B;
-        }
-
-        Knapsack(const double &w, const double &B){
-            modular = Modular(w);
-            budget = B;
-        }
+namespace constraint{
+    class Constraint{
+        public:
+            Constraint(){};
         
-        // this is just the cardinality constraint oracle
-        Knapsack(const double &B){
-            modular = Modular();
-            budget = B;
-        }
+            // No constraint defined at high level, so just always return true.
+            virtual const bool test_membership(std::unordered_set<Element> &set){
+                return true;
+            }
 
-        const bool test_membership(const Element &el){
-            return modular(el) <= budget;
-        }
+            virtual const bool test_membership(Element &el){
+                return true;
+            }
 
-        const bool test_membership(std::unordered_set<Element> &set){
-            return modular(set) <= budget;
-        }
+            virtual const bool is_saturated(Element &el){
+                return false;
+            }
 
-        const bool is_saturated(std::unordered_set<Element> &test_set){
-            return std::abs(modular(test_set) - budget) < __FLT_EPSILON__;
-        }
+            virtual const bool is_saturated(std::unordered_set<Element> &set){
+                return false;
+            }
+    };
 
-        const bool is_saturated(Element &el){
-            return std::abs(modular(el) - budget) < __FLT_EPSILON__;
-        }
 
-        const double value(std::unordered_set<Element> &test_set){
-            return modular(test_set);
-        }
+    class Knapsack : public Constraint{
+        // knapsack constraints are secretly just Modular functions with an upper bound
+        public:
+            costfunction::Modular modular;
+            double budget;
 
-        const double value(Element &el){
-            return modular(el);
-        }
-};
+            template<typename T>
+            Knapsack(const T &wts, const double &B){
+                modular = costfunction::Modular(wts);
+                budget = B;
+            }
+
+            Knapsack(const double &w, const double &B){
+                modular = costfunction::Modular(w);
+                budget = B;
+            }
+            
+            // this is just the cardinality constraint oracle
+            Knapsack(const double &B){
+                modular = costfunction::Modular();
+                budget = B;
+            }
+
+            const bool test_membership(const Element &el){
+                return modular(el) <= budget;
+            }
+
+            const bool test_membership(std::unordered_set<Element> &set){
+                return modular(set) <= budget;
+            }
+
+            const bool is_saturated(std::unordered_set<Element> &test_set){
+                return std::abs(modular(test_set) - budget) < __FLT_EPSILON__;
+            }
+
+            const bool is_saturated(Element &el){
+                return std::abs(modular(el) - budget) < __FLT_EPSILON__;
+            }
+
+            const double value(std::unordered_set<Element> &test_set){
+                return modular(test_set);
+            }
+
+            const double value(Element &el){
+                return modular(el);
+            }
+    };
+
+    class Cardinality : public Knapsack{
+        // cardinality constraints are just a special case of modular/knapsack constraints
+        public:
+            Cardinality(const int &B) : Knapsack(int(B)){}
+    };
+}
