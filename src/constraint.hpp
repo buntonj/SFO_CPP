@@ -11,19 +11,19 @@ namespace constraint{
             Constraint(){};
         
             // No constraint defined at high level, so just always return true.
-            virtual const bool test_membership(std::unordered_set<Element> &set){
+            virtual const bool test_membership(std::unordered_set<Element*> set){
                 return true;
             }
 
-            virtual const bool test_membership(Element &el){
+            virtual const bool test_membership(Element* el){
                 return true;
             }
 
-            virtual const bool is_saturated(Element &el){
+            virtual const bool is_saturated(Element* el){
                 return false;
             }
 
-            virtual const bool is_saturated(std::unordered_set<Element> &set){
+            virtual const bool is_saturated(std::unordered_set<Element*> set){
                 return false;
             }
     };
