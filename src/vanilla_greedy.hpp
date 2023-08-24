@@ -9,18 +9,17 @@
 class GreedyAlgorithm{
     private:
         double curr_val = 0;  // current value of elements in set
-        constraint::Constraint *constraint;
         bool constraint_saturated = false;
         int MAXITER = 15;
-        std::unordered_set<Element*> *ground_set;  // pointer to ground set of elements
-        std::unordered_map<Element*, double> marginal_gains;  // will hold marginal benefit of each element
 
     public:
+        std::unordered_set<Element*> *ground_set;  // pointer to ground set of elements
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
-        std::unordered_set <Element*> curr_set;  // will hold elements selected to be in our set
+        constraint::Constraint *constraint;
+        std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
 
         GreedyAlgorithm(int &N){
-            this->set_ground_set(this->generate_ground_set(n));
+            this->set_ground_set(this->generate_ground_set(N));
         };
 
         GreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
@@ -40,8 +39,11 @@ class GreedyAlgorithm{
 
         std::unordered_set<Element*>* const generate_ground_set(int &n){
             std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
+            int id = 0;
+            double val = 0;
             for (int i=0; i<n; i++){
-                V->insert(new Element(i));
+                id++;
+                V->insert(new Element(id, val));
             }
             return V;
         }
@@ -71,7 +73,7 @@ class GreedyAlgorithm{
                 while (!constraint_saturated && counter < MAXITER){
                     counter++;
                     greedy_step(C);
-                    std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
+                    std::cout<< "Performed VANILLA greedy algorithm iteration: " << counter << std::endl;
                     print_status();
                 }
             }
@@ -94,7 +96,7 @@ class GreedyAlgorithm{
                 while (!constraint_saturated && counter < MAXITER){
                     counter++;
                     cost_benefit_greedy_step(C, k, budget);
-                    std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
+                    std::cout<< "Performed VANILLA CB greedy algorithm iteration: " << counter << std::endl;
                     print_status();
                 }
             }
@@ -121,13 +123,19 @@ class GreedyAlgorithm{
             constraint = C;
         }
 
+        void clear_set(){
+            this->curr_set.clear();
+            this->curr_val = 0;
+            this->constraint_saturated = false;
+        }
+
     private:
         void greedy_step(costfunction::CostFunction &F){
             std::unordered_set <Element*> test_set(curr_set);
             Element* best_el;
             double best_marginal_val = -DBL_MAX;
+            double candidate_marginal_val = 0;
 
-            marginal_gains.clear();  // clear the marginals each iteration
             for(auto el=ground_set->begin(); el != ground_set->end(); ++el){
                 // note that el is a POINTER to a POINTER to an element in the ground set
                 test_set = curr_set;
@@ -143,93 +151,69 @@ class GreedyAlgorithm{
                 }
 
                 // update marginal value
-                marginal_gains[*el] = F(test_set) - curr_val;
+                candidate_marginal_val = F(test_set) - curr_val;
 
                 // keep running track of highest marginal value element
-                if (marginal_gains[*el] > best_marginal_val){
+                if (candidate_marginal_val > best_marginal_val){
                     best_el = *el;
-                    best_marginal_val = marginal_gains[*el];
+                    best_marginal_val = candidate_marginal_val;
                 }
-            }
-
-
-
-            for(int i=0; i < n; i++){
-                test_set = curr_set;
-                // build new candidate element
-                candidate.id = i;
-                // if the candidate is in the set already, continue
-                if (test_set.find(candidate) != test_set.end()){
-                    continue;
-                }
-
-                // add the candidate element to the current set
-                test_set.insert(candidate);
-
-                // check if adding the element violates the constraint
-                if(! constraint->test_membership(test_set)){
-                    continue;
-                }
-
-                candidate.set_value(F(test_set) - curr_val);  // compute its value
-                std::cout<< "Test set:" <<std::endl;
-                std::cout << test_set << std::endl;
-                std::cout << "Marginal val:" << candidate.value << std::endl;
-
-                // if it is the best right now, remember it
-                best = std::max(best, candidate);
             }
 
             // check if we could even add an element to set
-            if (best.value < 0){
+            if (best_marginal_val < 0){
                 constraint_saturated = true;  // no more elements could be feasibly added
             } else{
                 // update the current set, value, and budget value with the found item
-                curr_set.insert(best);
-                curr_val = curr_val + best.value;
+                curr_set.insert(best_el);
+                curr_val = curr_val + best_marginal_val;
                 constraint_saturated = constraint->is_saturated(curr_set);  // check if constraint is now saturated
             }
         };
 
         void cost_benefit_greedy_step(costfunction::CostFunction &F, constraint::Knapsack *K, double &curr_budget){
-            std::unordered_set <Element> test_set(curr_set);
-            Element candidate;
-            Element best(0, -DBL_MAX);
+            std::unordered_set <Element*> test_set(curr_set);
+            Element* best_el;
+            double best_marginal_val = -DBL_MAX;
+            double best_marginal_cost = 1;
+            double candidate_marginal_cost = 1;
+            double candidate_marginal_val = -DBL_MAX;
 
-            for(int i=0; i < n; i++){
+            for(auto el=ground_set->begin(); el != ground_set->end(); ++el){
+                // note that el is a POINTER to a POINTER to an element in the ground set
                 test_set = curr_set;
-                // build new candidate element
-                candidate.id = i;
-                // if the candidate is in the set already, continue
-                if (test_set.find(candidate) != test_set.end()){
+
+                // if element is already in our set, skip it
+                if (curr_set.find(*el) != curr_set.end()){
                     continue;
                 }
 
-                // add the candidate element to the current set
-                test_set.insert(candidate);
+                test_set.insert(*el);
 
-                // check if adding the element violates the constraint
-                if(! constraint->test_membership(test_set)){
+                // if new element violates the constraint, skip it
+                if (! constraint->test_membership(test_set)){
                     continue;
                 }
 
-                candidate.set_value((F(test_set) - curr_val)/(K->value(candidate)));  // compute its value
-                std::cout<< "Test set:" <<std::endl;
-                std::cout << test_set << std::endl;
-                std::cout << "Marginal val:" << candidate.value << std::endl;
+                // update marginal value
+                candidate_marginal_cost = K->value(test_set) - curr_budget;
+                candidate_marginal_val = F(test_set) - curr_val;
 
-                // if it is the best right now, remember it
-                best = std::max(best, candidate);
+                // keep running track of highest marginal value element
+                if (candidate_marginal_val/candidate_marginal_cost > best_marginal_val/best_marginal_cost){
+                    best_el = *el;
+                    best_marginal_val = candidate_marginal_val;
+                    best_marginal_cost = candidate_marginal_cost;
+                }
             }
 
             // check if we could even add an element to set
-            if (best.value < 0){
+            if (best_marginal_val < 0){
                 constraint_saturated = true;  // no more elements could be feasibly added
             } else{
                 // update the current set, value, and budget value with the found item
-                curr_set.insert(best);
-                curr_budget = K->value(curr_set); // update the budget
-                curr_val = curr_val + best.value;
+                curr_set.insert(best_el);
+                curr_val = curr_val + best_marginal_val;
                 constraint_saturated = constraint->is_saturated(curr_set);  // check if constraint is now saturated
             }
         };

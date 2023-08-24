@@ -8,64 +8,122 @@
 #include "cost_function.hpp"
 #include "constraint.hpp"
 
+class compare_elements{
+    public:
+        const bool operator()(const std::pair<Element*, double> &lhs, const std::pair<Element*, double> &rhs){
+            return lhs.second < rhs.second;
+        };
+};
+
+typedef std::priority_queue<std::pair<Element*, double>,std::vector<std::pair<Element*,double>>,compare_elements> LazyGreedyQueue;
+
 
 class LazyGreedy{
     private:
         double curr_val = 0;  // current value of elements in set
-        constraint::Constraint *constraint;
         bool constraint_saturated = false;
-        int MAXITER = 50;
+        int MAXITER = 15;
 
     public:
+        std::unordered_set<Element*> *ground_set;
         int n;  // holds size of ground set, indexed from 0 to n-1
-        std::unordered_set <Element> curr_set;  // will hold elements selected to be in our set
-        std::priority_queue <Element> marginals; // will hold marginals
+        std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
+        LazyGreedyQueue marginals; // will hold marginals
+        constraint::Constraint *constraint;
 
-        LazyGreedy(const int &N){
-            n = N;
+        LazyGreedy(int &N){
+            this->set_ground_set(this->generate_ground_set(N));
+        };
+
+        LazyGreedy(int &N, int &B){  // If you give a budget, initialize a budget constraint
+            this->set_ground_set(this->generate_ground_set(n));
+            this->add_constraint(new constraint::Cardinality(B));
+        };
+
+        LazyGreedy(std::unordered_set<Element*> *V){
+            this->n = V->size();
+            this->ground_set = V;
+        };
+
+        LazyGreedy(std::unordered_set<Element*> *V, int &B){
+            this->set_ground_set(V);
+            this->add_constraint(new constraint::Cardinality(B));
+        };
+
+        std::unordered_set<Element*>* const generate_ground_set(int &n){
+            std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
+            int id = 0;
+            double val = 0;
+            for (int i=0; i<n; i++){
+                id++;
+                V->insert(new Element(id, val));
+            }
+            return V;
         }
 
-        LazyGreedy(const int &N, const int &B){
-            n = N;
-            add_constraint(new constraint::Knapsack(B));
+        void set_ground_set(std::unordered_set<Element*> *V){
+            this->ground_set = V;
+            this->n = V->size();
+        }
+
+        void clear_set(){
+            this->curr_set.clear();
+            this->curr_val = 0;
+            this->constraint_saturated = false;
+            this->clear_marginals();
+        }
+
+        void run_greedy(costfunction::CostFunction &F, std::unordered_set<Element*> *V, bool cost_benefit){
+            if(V->size() < 1){
+                std::cout<<"Ground set is empty!" <<std::endl;
+                return;
+            } else{
+                this->set_ground_set(V);
+                this->run_greedy(F, cost_benefit);
+            }
+        }
+
+        void run_greedy(costfunction::CostFunction &F, bool cost_benefit){
+            if (this->n < 1){
+                std::cout<< "No ground set given!" << std::endl;
+                return;
+            }
+            if(!cost_benefit){
+                run_greedy(F);
+            } else if(constraint::Knapsack* K = dynamic_cast<constraint::Knapsack*>(constraint); K != nullptr){
+                int counter = 1;
+                double budget = 0;
+                clear_marginals();
+                cost_benefit_first_iteration(F, K, budget);  // initializes marginals in first greedy iteration
+                std::cout<< "Performed CB LAZY GREEDY algorithm iteration: " << counter << std::endl;
+                print_status();
+                while (!constraint_saturated && counter < MAXITER){
+                    counter++;
+                    cost_benefit_lazy_greedy_step(F, K, budget);
+                    std::cout<< "Performed CB LAZY GREEDY algorithm iteration: " << counter << std::endl;
+                    print_status();
+                }
+            }
         };
 
         void run_greedy(costfunction::CostFunction &cost_function){
             clear_marginals();
-            int counter=1;
             first_iteration(cost_function);  // initializes marginals in first greedy iteration
-            std::cout<< "Performed lazy greedy algorithm iteration: " << counter << std::endl;
+            int counter=1;
+            std::cout<< "Performed LAZY GREEDY algorithm iteration: " << counter << std::endl;
             print_status();
             while (!constraint_saturated && counter < MAXITER){
                 counter++;
                 lazy_greedy_step(cost_function);
-                std::cout<< "Performed lazy greedy algorithm iteration: " << counter << std::endl;
+                std::cout<< "Performed LAZY GREEDY algorithm iteration: " << counter << std::endl;
                 print_status();
-            }
-        };
-
-        void run_greedy(costfunction::CostFunction &cost_function, bool cost_benefit){
-            clear_marginals();
-            if(!cost_benefit){
-                run_greedy(cost_function);
-            } else if(constraint::Knapsack* k = dynamic_cast<constraint::Knapsack*>(constraint); k != nullptr){
-                int counter = 1;
-                double budget = 0;
-                cost_benefit_first_iteration(cost_function, k, budget);  // initializes marginals in first greedy iteration
-                std::cout<< "Performed lazy greedy algorithm iteration: " << counter << std::endl;
-                print_status();
-                while (!constraint_saturated && counter < MAXITER){
-                    counter++;
-                    cost_benefit_lazy_greedy_step(cost_function, k, budget);
-                    std::cout<< "Performed lazy greedy algorithm iteration: " << counter << std::endl;
-                    print_status();
-            }
             }
         };
 
         void print_status(){
             std::cout << "Current set:" << curr_set << std::endl;
             std::cout<<"Current val: " << curr_val << std::endl;
+            std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
         };
 
         void add_constraint(constraint::Constraint *C){
@@ -76,159 +134,197 @@ class LazyGreedy{
 
         // Special function for first iteration, populates priority queue
         void first_iteration(costfunction::CostFunction &F){
-            std::unordered_set<Element> test_set;
-            Element candidate;
+            std::unordered_set<Element*> test_set(curr_set);
+            std::pair<Element*, double> candidate(nullptr, -DBL_MAX);
 
-            // iterate through all candidate elements
-            for (int i = 0; i < n; i++){
-                candidate.id = i;
-                test_set.insert(candidate);
+            for(auto el=ground_set->begin(); el != ground_set->end(); ++el){
+                test_set = curr_set;
 
-                // First check if element is feasible
-                if(constraint->test_membership(test_set)){
-                    std::cout<<"test set:" << test_set << std::endl;
-                    std::cout<< "F(set) : " << F(test_set) << std::endl;
-                    candidate.set_value(F(test_set) - curr_val);
-                } else {
-                    candidate.set_value(-DBL_MAX);
+                // check if element in set yet
+                if(curr_set.find(*el) != curr_set.end()){
+                    continue;
                 }
 
-                // note that <Element> is sorted by VALUE
-                marginals.push(candidate);  // insert element into priority queue with priority
-                std::cout<<"MARGINALS top:" << marginals.top().id << "~" << marginals.top().value;
-                std::cout<<" size:" << marginals.size() << std::endl;
-                test_set = curr_set; // refresh test set
+                // put element in testing set
+                test_set.insert(*el);
+
+                // if test set violates constraint, skip it
+                if(!constraint->test_membership(test_set)){
+                    continue;
+                }
+
+                // build out candidate pair
+                candidate.first = *el;
+                candidate.second = F(test_set) - curr_val;
+
+                marginals.push(candidate);
+
             }
 
-            if (marginals.top().value < 0){
-                constraint_saturated = true;  // no element gives benefit and/or no feasible element
-            } else{
-                curr_set.insert(marginals.top());  // pull top element
-                curr_val = curr_val + marginals.top().value;
-                marginals.pop();  // pop it
-                constraint_saturated = constraint->is_saturated(curr_set);
+            if (! marginals.empty()){
+                // check that there is an element
+                candidate = marginals.top();
+                if (candidate.second > 0){
+                    // check that its added value is positive
+                    curr_set.insert(candidate.first);
+                    curr_val = curr_val + candidate.second;
+                    marginals.pop();
+                    constraint_saturated = constraint->is_saturated(curr_set);
+                } else {
+                    // if no element provided positive gain we are done
+                    constraint_saturated = true;
+                }
+            } else {
+                // if no element then we are done
+                constraint_saturated = true;
             }
         }
 
-                // Special function for first iteration, populates priority queue
-        void cost_benefit_first_iteration(costfunction::CostFunction &F, constraint::Knapsack* K, double curr_budget){
-            std::unordered_set<Element> test_set;
-            Element candidate;
+        // Special function for first iteration, populates priority queue
+        void cost_benefit_first_iteration(costfunction::CostFunction &F, constraint::Knapsack *K, double &curr_budget){
+            std::unordered_set<Element*> test_set(curr_set);
+            std::unordered_map<Element*, double> pure_vals;
+            std::unordered_map<Element*, double> pure_knaps;
+            std::pair<Element*, double> candidate;
 
-            // iterate through all candidate elements
-            for (int i = 0; i < n; i++){
-                candidate.id = i;
-                test_set.insert(candidate);
+            for(auto el=ground_set->begin(); el != ground_set->end(); ++el){
+                test_set = curr_set;
 
-                // First check if element is feasible
-                if(constraint->test_membership(test_set)){
-                    std::cout<<"test set:" << test_set << std::endl;
-                    std::cout<< "F(set) : " << F(test_set) << std::endl;
-                    candidate.set_value((F(test_set) - curr_val)/(K->value(candidate)));
-                } else {
-                    candidate.set_value(-DBL_MAX);
+                // check if element in set yet
+                if(curr_set.find(*el) != curr_set.end()){
+                    continue;
                 }
 
-                // note that <Element> is sorted by VALUE
-                marginals.push(candidate);  // insert element into priority queue with priority
-                std::cout<<"MARGINALS top:" << marginals.top().id << "~" << marginals.top().value;
-                std::cout<<" size:" << marginals.size() << std::endl;
-                test_set = curr_set; // refresh test set
+                test_set.insert(*el);
+                
+                if(!constraint->test_membership(test_set)){
+                    continue;
+                }
+                
+                candidate.first = *el;
+                pure_vals.insert({candidate.first, F(test_set) - curr_val});
+                pure_knaps.insert({candidate.first, K->value(test_set) - curr_budget});
+                candidate.second = pure_vals[candidate.first]/pure_knaps[candidate.first];
+
+                marginals.push(candidate);  // insert into priority queue
+
             }
 
-            if (marginals.top().value < 0){
-                constraint_saturated = true;  // no element gives benefit and/or no feasible element
-            } else{
-                curr_set.insert(marginals.top());  // pull top element
-                curr_val = curr_val + marginals.top().value;
-                curr_budget = curr_budget + K->value(curr_set);
-                marginals.pop();  // pop it
-                constraint_saturated = constraint->is_saturated(curr_set);
+            if (! marginals.empty()){
+                // check that there is a feasible element to add
+                if (auto best = marginals.top(); best.second > 0){
+                    // check that its added value is positive
+                    curr_set.insert(best.first);  // add it to set
+                    constraint_saturated = constraint->is_saturated(curr_set);  // update constraint saturation
+                    curr_val = curr_val + pure_vals[best.first]; // update current value
+                    curr_budget = curr_budget + pure_knaps[best.first];
+                    marginals.pop(); // pop element from queue
+                } else {
+                    // if no element added value, we are done
+                    constraint_saturated = true;
+                }
+            } else {
+                // if no feasible element then we are done
+                constraint_saturated = true;
             }
         }
 
         void lazy_greedy_step(costfunction::CostFunction &F){
-            std::unordered_set <Element> test_set = curr_set;
-            Element candidate;
+            std::unordered_set <Element*> test_set(curr_set);
+            std::pair<Element*, double> candidate;
 
             // iterate through all candidate element IDs
-            for (int i=0; i < n; i++){
-                candidate = marginals.top();
-                test_set.insert(candidate);  // pull top of current queue
-                marginals.pop();  // pop this element from queue
-                
-                // First check if element is feasible
-                if(constraint->test_membership(test_set)){
-                    std::cout<<"test set:" << test_set << std::endl;
-                    std::cout<< "F(set) : " << F(test_set) << std::endl;
-                    candidate.set_value(F(test_set) - curr_val);
-                } else {
-                    candidate.set_value(-DBL_MAX);
+            while(! marginals.empty()){
+                test_set = curr_set;
+
+                // pull first element from priority queue
+                candidate.first = marginals.top().first;
+                test_set.insert(candidate.first);  // add it to testing set
+
+                if (!constraint->test_membership(test_set)){
+                    marginals.pop();
+                    continue;  // leave element out from now on
                 }
 
-                candidate.set_value(F(test_set) - curr_val);  // reset its priority value
-                marginals.push(candidate);  // add it back
-                std::cout<<"MARGINALS top:" << marginals.top().id << "~" << marginals.top().value;
-                std::cout<<" size:" << marginals.size() << std::endl;
-                if (marginals.top() == candidate){ // if it didn't change position, then it is the best option, break
+                candidate.second = F(test_set)-curr_val;
+
+                // put updated candidate back into priority queue
+                marginals.pop();
+                marginals.push(candidate);
+
+                // if it is still at the top, we have found best element
+                if (marginals.top().second <= candidate.second){
                     break;
                 }
-                test_set = curr_set;       
             }
 
-            if(marginals.top().value < 0){
-                constraint_saturated = true;  // nothing of value could be added OR constraint full
+            if(! marginals.empty()){
+                if (auto best = marginals.top(); best.second > 0){
+                    // update the current set, value, and budget value with the found item
+                    curr_set.insert(best.first);
+                    curr_val = curr_val + best.second;
+                    marginals.pop();
+                    constraint_saturated = constraint->is_saturated(curr_set); // allows for early stop detection
+                } else {
+                    constraint_saturated = true;
+                }
             } else{
-                // update the current set, value, and budget value with the found item
-                curr_set.insert(marginals.top());
-                curr_val = curr_val + marginals.top().value;
-                marginals.pop();
-                constraint_saturated = constraint->is_saturated(curr_set); // allows for early stop detection
+                constraint_saturated = true;
             }
         };
 
         void cost_benefit_lazy_greedy_step(costfunction::CostFunction &F, constraint::Knapsack* K, double curr_budget){
-            std::unordered_set <Element> test_set = curr_set;
-            Element candidate;
+            std::unordered_set <Element*> test_set(curr_set);
+            std::unordered_map<Element*, double> pure_vals;
+            std::unordered_map<Element*, double> pure_knaps;
+            std::pair<Element*, double> candidate;
 
-            // iterate through all candidate element IDs
-            for (int i=0; i < n; i++){
-                candidate = marginals.top();
-                test_set.insert(candidate);  // pull top of current queue
-                marginals.pop();  // pop this element from queue
-                
-                // First check if element is feasible
-                if(constraint->test_membership(test_set)){
-                    std::cout<<"test set:" << test_set << std::endl;
-                    std::cout<< "F(set) : " << F(test_set) << std::endl;
-                    candidate.set_value((F(test_set) - curr_val)/(K->value(candidate)));
-                } else {
-                    candidate.set_value(-DBL_MAX);
+                        // iterate through all candidate element IDs
+            while(! marginals.empty()){
+                test_set = curr_set;
+
+                // pull first element from priority queue
+                candidate.first = marginals.top().first;
+                test_set.insert(candidate.first);  // add it to testing set
+
+                marginals.pop();
+
+                if (!constraint->test_membership(test_set)){
+                    continue;  // leave element out from now on
                 }
 
-                candidate.set_value(F(test_set) - curr_val);  // reset its priority value
-                marginals.push(candidate);  // add it back
-                std::cout<<"MARGINALS top:" << marginals.top().id << "~" << marginals.top().value;
-                std::cout<<" size:" << marginals.size() << std::endl;
-                if (marginals.top() == candidate){ // if it didn't change position, then it is the best option, break
+                pure_vals.insert({candidate.first, F(test_set)-curr_val});
+                pure_knaps.insert({candidate.first, K->value(test_set) - curr_budget});
+                candidate.second = pure_vals[candidate.first]/pure_knaps[candidate.first];
+
+
+                // put updated candidate back into priority queue
+                marginals.push(candidate);
+
+                // if it is still at the top, we have found best element
+                if (marginals.top().second <= candidate.second){
                     break;
                 }
-                test_set = curr_set;       
             }
 
-            if(marginals.top().value < 0){
-                constraint_saturated = true;  // nothing of value could be added OR constraint full
+            if(! marginals.empty()){
+                if (auto best = marginals.top(); best.second > 0){
+                    // update the current set, value, and budget value with the found item
+                    curr_set.insert(best.first);
+                    curr_val = curr_val + pure_vals[best.first];
+                    curr_budget = curr_budget + pure_knaps[best.first];
+                    marginals.pop();
+                    constraint_saturated = constraint->is_saturated(curr_set); // allows for early stop detection
+                } else {
+                    constraint_saturated = true;
+                }
             } else{
-                // update the current set, value, and budget value with the found item
-                curr_set.insert(marginals.top());
-                curr_val = curr_val + marginals.top().value;
-                marginals.pop();
-                constraint_saturated = constraint->is_saturated(curr_set); // allows for early stop detection
+                constraint_saturated = true;
             }
         };
 
         void clear_marginals(){
-            std::priority_queue<Element> empty;
+            LazyGreedyQueue empty;
             std::swap(marginals, empty);
         }
 };

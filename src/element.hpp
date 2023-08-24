@@ -67,7 +67,16 @@ std::ostream& operator<<(std::ostream& os, const Element& el){
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const std::unordered_set<Element>& set){
+std::ostream& operator<<(std::ostream& os, const std::unordered_set<Element*> &set){
+    os << "{";
+    for (auto el:set){
+        os << *el << ",";
+    }
+    os << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::unordered_set<Element> &set){
     os << "{";
     for (auto el:set){
         os << el << ",";

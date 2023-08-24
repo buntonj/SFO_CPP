@@ -9,8 +9,8 @@ namespace costfunction{
     class CostFunction{
         // Cost functions are given POINTERS to ELEMENTS, returning an evaluation
         public:
-            const virtual double operator()(std::unordered_set<Element*> set) = 0;
-            const virtual double operator()(Element* el) = 0;
+            const virtual double operator()(std::unordered_set<Element*> &set) = 0;
+            const virtual double operator()(Element* &el) = 0;
     };
 
     class Modular : public CostFunction{
@@ -29,7 +29,7 @@ namespace costfunction{
                 weights.insert({nullptr, 1});
             }
 
-            const double operator()(std::unordered_set<Element*> set){
+            const double operator()(std::unordered_set<Element*> &set){
                 if (weights.size() == 1){
                     return (weights.begin()->second)*double(set.size());
                 }
@@ -40,7 +40,7 @@ namespace costfunction{
                 return val;
             }
 
-            const double operator()(Element* el){
+            const double operator()(Element* &el){
                 if (weights.size() == 1){
                     return (weights.begin()->second);
                 } else{
@@ -62,11 +62,11 @@ namespace costfunction{
                 modular_part = Modular();
             }
 
-            const double operator()(std::unordered_set<Element*> set){
+            const double operator()(std::unordered_set<Element*> &set){
                 return std::sqrt(modular_part(set));
             }
 
-            const double operator()(Element* el){
+            const double operator()(Element* &el){
                 return std::sqrt(modular_part(el));
             }
     };
