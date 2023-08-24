@@ -28,22 +28,23 @@ int main(){
     lazygreedy.add_constraint(crd);
     lazygreedy.set_ground_set(greedy.ground_set);
     std::cout<< "Successfully built greedy algorithms." <<std::endl;
-    std::cout<<"=============RUNNING MODULAR COSTS================" << std::endl;
-    std::cout<< "Running vanilla greedy..." << std::endl;
+    std::cout<< std::endl << "****************RUNNING MODULAR COSTS*************" << std::endl;
+    std::cout<<"==============VANILLA GREEDY==============" << std::endl;
     greedy.run_greedy(*modular);
-    std::cout<< "Running vanilla CB..." << std::endl;
+    std::cout<<"==============VANILLA CB GREEDY==============" << std::endl;
     greedy.clear_set();
     greedy.run_greedy(*modular, true);
-    std::cout<< "Running lazy greedy..." << std::endl;
+    std::cout<<"==============LAZY GREEDY==============" << std::endl;
     lazygreedy.run_greedy(*modular);
-    std::cout<< "Running lazy CB..." << std::endl;
+    std::cout<<"==============LAZY CB GREEDY==============" << std::endl;
     lazygreedy.clear_set();
     lazygreedy.run_greedy(*modular, true);
 
-    std::cout<<"==============RUNNING SQRT MODULAR COST==============" << std::endl;
+    std::cout<< std::endl << "******************SQRT MODULAR COST*****************" << std::endl;
+    std::cout<<"==============VANILLA GREEDY==============" << std::endl;
     greedy.clear_set();
     greedy.run_greedy(*sqrtmodular);
-    std::cout<< "Running lazy greedy..." << std::endl;
+    std::cout<<"==============LAZY GREEDY==============" << std::endl;
     lazygreedy.clear_set();
     lazygreedy.run_greedy(*sqrtmodular);
 

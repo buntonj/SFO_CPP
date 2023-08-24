@@ -39,11 +39,15 @@ class GreedyAlgorithm{
 
         std::unordered_set<Element*>* const generate_ground_set(int &n){
             std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
+            Element* el;
             int id = 0;
             double val = 0;
             for (int i=0; i<n; i++){
                 id++;
-                V->insert(new Element(id, val));
+                el = new Element;
+                el->id = id;
+                el->value = 0;
+                V->insert(el);
             }
             return V;
         }

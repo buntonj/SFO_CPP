@@ -8,6 +8,8 @@
 #include "cost_function.hpp"
 #include "constraint.hpp"
 
+
+// comparison function for sorting elements by marginal value
 class compare_elements{
     public:
         const bool operator()(const std::pair<Element*, double> &lhs, const std::pair<Element*, double> &rhs){
@@ -15,6 +17,7 @@ class compare_elements{
         };
 };
 
+// for brevity later, defines a priority queue where element pointers are sorted by marginal value
 typedef std::priority_queue<std::pair<Element*, double>,std::vector<std::pair<Element*,double>>,compare_elements> LazyGreedyQueue;
 
 
