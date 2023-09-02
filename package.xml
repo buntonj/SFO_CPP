@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>sfo_cpp</name>
+  <version>0.0.1</version>
+  <description>Submodular function maximization in C++</description>
+
+  <author>Jonathan Bunton</author>
+  <maintainer email="jonathan.m.bunton@gmail.com">Jonathan Bunton</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>cmake</buildtool_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>

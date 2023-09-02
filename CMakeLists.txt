@@ -33,25 +33,25 @@ target_include_directories(
 target_compile_features(sfo_cpp INTERFACE cxx_std_17)
 
 if(BUILD_SFO_TESTS)
-    add_subdirectory(tests)
+  add_subdirectory(tests)
 endif()
 
 if(BUILD_SFO_EXAMPLES)
-    add_subdirectory(examples)
+  add_subdirectory(examples)
 endif()
 
 if(SFO_INSTALL_LIBRARY)
   # locations are provided by GNUInstallDirs
   install(
-    TARGETS sfo_cpp
-    EXPORT SFO_CPP_TARGETS
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}_Targets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   include(CMakePackageConfigHelpers)
   write_basic_package_version_file(
-    "SFO_CPP_ConfigVersion.cmake"
+    "${PROJECT_NAME}ConfigVersion.cmake"
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion)
 
