@@ -44,8 +44,7 @@ class LazyGreedy{
         };
 
         LazyGreedy(std::unordered_set<Element*> *V){
-            this->n = V->size();
-            this->ground_set = V;
+            this->set_ground_set(V);
         };
 
         LazyGreedy(std::unordered_set<Element*> *V, int &B){

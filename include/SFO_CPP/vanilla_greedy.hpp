@@ -2,9 +2,9 @@
 #include <iostream>
 #include <unordered_set>
 #include <cfloat>
-#include "cost_function.hpp"
-#include "element.hpp"
-#include "constraint.hpp"
+#include "SFO_core/cost_function.hpp"
+#include "SFO_core/element.hpp"
+#include "SFO_core/constraint.hpp"
 
 class GreedyAlgorithm{
     private:
@@ -28,8 +28,7 @@ class GreedyAlgorithm{
         };
 
         GreedyAlgorithm(std::unordered_set<Element*> *V){
-            this->n = V->size();
-            this->ground_set = V;
+            this->set_ground_set(V);
         };
 
         GreedyAlgorithm(std::unordered_set<Element*> *V, int &B){

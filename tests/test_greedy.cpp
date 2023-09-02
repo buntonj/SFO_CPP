@@ -2,7 +2,7 @@
 #include <vector>
 #include "sfo_cpp/vanilla_greedy.hpp"
 #include "sfo_cpp/lazy_greedy.hpp"
-#include "sfo_cpp/constraint.hpp"
+#include "sfo_cpp/SFO_core/constraint.hpp"
 
 
 int main(){
