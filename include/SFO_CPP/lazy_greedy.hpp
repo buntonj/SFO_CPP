@@ -4,9 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <cfloat>
-#include "element.hpp"
-#include "cost_function.hpp"
-#include "constraint.hpp"
+#include "SFO_core/element.hpp"
+#include "SFO_core/cost_function.hpp"
+#include "SFO_core/constraint.hpp"
 
 
 // comparison function for sorting elements by marginal value

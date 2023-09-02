@@ -4,9 +4,9 @@
 #include <cfloat>
 #include <cmath>
 #include <random>
-#include "cost_function.hpp"
-#include "element.hpp"
-#include "constraint.hpp"
+#include "SFO_core/cost_function.hpp"
+#include "SFO_core/element.hpp"
+#include "SFO_core/constraint.hpp"
 
 class StochasticGreedyAlgorithm{
     private:
