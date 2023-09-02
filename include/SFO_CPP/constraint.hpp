@@ -9,21 +9,23 @@ namespace constraint{
     class Constraint{
         public:
             Constraint(){};
-        
+
+            virtual ~Constraint(){};
+
             // No constraint defined at high level, so just always return true.
-            virtual const bool test_membership(std::unordered_set<Element*> &set){
+            virtual bool test_membership(std::unordered_set<Element*>&){
                 return true;
             }
 
-            virtual const bool test_membership(Element* el){
+            virtual bool test_membership(Element*){
                 return true;
             }
 
-            virtual const bool is_saturated(Element* el){
+            virtual bool is_saturated(Element*){
                 return false;
             }
 
-            virtual const bool is_saturated(std::unordered_set<Element*> &set){
+            virtual bool is_saturated(std::unordered_set<Element*>&){
                 return false;
             }
     };
@@ -47,27 +49,27 @@ namespace constraint{
                 budget = B;
             }
 
-            const bool test_membership(Element *el){
+            bool test_membership(Element *el){
                 return modular(el) <= budget;
             }
 
-            const bool test_membership(std::unordered_set<Element*> &set){
+            bool test_membership(std::unordered_set<Element*> &set){
                 return modular(set) <= budget;
             }
 
-            const bool is_saturated(std::unordered_set<Element*> &test_set){
+            bool is_saturated(std::unordered_set<Element*> &test_set){
                 return std::abs(modular(test_set) - budget) < __FLT_EPSILON__;
             }
 
-            const bool is_saturated(Element *el){
+            bool is_saturated(Element *el){
                 return std::abs(modular(el) - budget) < __FLT_EPSILON__;
             }
 
-            const double value(std::unordered_set<Element*> &test_set){
+            double value(std::unordered_set<Element*> &test_set){
                 return modular(test_set);
             }
 
-            const double value(Element* el){
+            double value(Element* el){
                 return modular(el);
             }
     };

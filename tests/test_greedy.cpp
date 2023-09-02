@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
-#include "vanilla_greedy.hpp"
-#include "lazy_greedy.hpp"
-#include "constraint.hpp"
+#include "sfo_cpp/vanilla_greedy.hpp"
+#include "sfo_cpp/lazy_greedy.hpp"
+#include "sfo_cpp/constraint.hpp"
 
 
 int main(){

@@ -23,7 +23,7 @@ class GreedyAlgorithm{
         };
 
         GreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
-            this->set_ground_set(this->generate_ground_set(n));
+            this->set_ground_set(this->generate_ground_set(N));
             this->add_constraint(new constraint::Cardinality(B));
         };
 
@@ -37,11 +37,10 @@ class GreedyAlgorithm{
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        std::unordered_set<Element*>* const generate_ground_set(int &n){
+        std::unordered_set<Element*>* generate_ground_set(int &n){
             std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
             Element* el;
             int id = 0;
-            double val = 0;
             for (int i=0; i<n; i++){
                 id++;
                 el = new Element;

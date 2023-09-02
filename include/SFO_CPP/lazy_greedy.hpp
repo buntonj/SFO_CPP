@@ -12,7 +12,7 @@
 // comparison function for sorting elements by marginal value
 class compare_elements{
     public:
-        const bool operator()(const std::pair<Element*, double> &lhs, const std::pair<Element*, double> &rhs){
+        bool operator()(const std::pair<Element*, double> &lhs, const std::pair<Element*, double> &rhs){
             return lhs.second < rhs.second;
         };
 };
@@ -39,7 +39,7 @@ class LazyGreedy{
         };
 
         LazyGreedy(int &N, int &B){  // If you give a budget, initialize a budget constraint
-            this->set_ground_set(this->generate_ground_set(n));
+            this->set_ground_set(this->generate_ground_set(N));
             this->add_constraint(new constraint::Cardinality(B));
         };
 
@@ -53,7 +53,7 @@ class LazyGreedy{
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        std::unordered_set<Element*>* const generate_ground_set(int &n){
+        std::unordered_set<Element*>* generate_ground_set(int &n){
             std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
             int id = 0;
             double val = 0;
