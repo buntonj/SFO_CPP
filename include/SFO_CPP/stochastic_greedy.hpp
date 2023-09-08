@@ -15,7 +15,7 @@
 // set sorts by element comparison operator (value, Element*)
 
 // comparison function for sorting elements by marginal value
-class compare_elements{
+/*class compare_elements{
     public:
         bool operator()(const std::pair<Element*, double> &lhs, const std::pair<Element*, double> &rhs){
             return lhs.second < rhs.second;
@@ -24,7 +24,7 @@ class compare_elements{
 
 // for brevity later, defines a priority queue where element pointers are sorted by marginal value
 typedef std::priority_queue<std::pair<Element*, double>,std::vector<std::pair<Element*,double>>,compare_elements> LazyGreedyQueue;
-
+*/
 class StochasticGreedyAlgorithm{
     private:
         double curr_val = 0;  // current value of elements in set
@@ -36,7 +36,7 @@ class StochasticGreedyAlgorithm{
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         constraint::Constraint *constraint;
         std::unordered_set<Element*> *ground_set;
-        std::unordered_map<int, Element*> ground_set_idxs;
+        std::unordered_map<int, Element*> ground_set_idxs;  // this maps us from an integer to an element
         std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
 
         StochasticGreedyAlgorithm(int &N){
@@ -84,32 +84,25 @@ class StochasticGreedyAlgorithm{
             }
         }
 
-        void run_greedy(costfunction::CostFunction &C, double epsilon){
-            // first, compute how many samples to randomly pull at each step
-            int sample_size = random_set_size(epsilon, n, double(b));
-            std::unordered_set<Element*> *sample_set = new std::unordered_set<Element*>;
-            int counter=0;
-            while (!constraint_saturated && counter < MAXITER){
-                counter++;
-                *sample_set = sample_ground_set(sample_size);
-                stochastic_greedy_step(C, sample_set);
-                std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
-                print_status();
-            }
-        };
+        void clear_set(){
+            this->curr_set.clear();
+            this->curr_val = 0;
+            this->constraint_saturated = false;
+        }
 
-        void run_greedy(costfunction::CostFunction &C, double epsilon, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction &C, double epsilon){
             // stochastic greedy is only valid for cardinality constraints, so check
             if (constraint::Cardinality* k = dynamic_cast<constraint::Cardinality*>(constraint); k != nullptr){
-                // if asking for cost-benefit, check that constraint is a knapsack one
-                // if it is, k becomes a pointer to derived Constraint::Knapsack type
+
+                this->curr_val = 0;
+                // first, compute how many samples to randomly pull at each step
                 int sample_size = random_set_size(epsilon, n, double(b));
                 std::unordered_set<Element*> *sample_set = new std::unordered_set<Element*>;
                 int counter=0;
-                double budget = 0;
                 while (!constraint_saturated && counter < MAXITER){
                     counter++;
-                    stochastic_greedy_step(C, budget);
+                    *sample_set = sample_ground_set(sample_size);
+                    stochastic_greedy_step(C, sample_set);
                     std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
                     print_status();
                 }
@@ -139,14 +132,15 @@ class StochasticGreedyAlgorithm{
             Element* candidate;
             int rand_idx;
             int count = 0;
-            bool finished = false;
-            while(!finished){
-                rand_idx = rand() % n;
-                candidate = ground_set_idxs[rand_idx];
+            // main sampling loop
+            while(count  < set_size){
+                rand_idx = rand() % n;  // pull a random index between 0 and n
+                candidate = ground_set_idxs[rand_idx]; // find which element pointer it corresponds to
+
+                // first see if we have added it to the set already
                 if(random_set.find(candidate) == random_set.end()){
                     random_set.insert(ground_set_idxs[rand_idx]);
-                    count++;
-                    finished = count == set_size;
+                    count++; // increment number of elements in our set
                 } else {
                     continue;
                 }
@@ -195,49 +189,6 @@ class StochasticGreedyAlgorithm{
                 // update the current set, value, and budget value with the found item
                 curr_set.insert(best_el);
                 curr_val = curr_val + best_marginal_val;
-                constraint_saturated = constraint->is_saturated(curr_set);  // check if constraint is now saturated
-            }
-        };
-
-        void cost_benefit_greedy_step(costfunction::CostFunction &F, constraint::Knapsack *K, double &curr_budget){
-            std::unordered_set <Element> test_set(curr_set);
-            Element candidate;
-            Element best(0, -DBL_MAX);
-
-            for(int i=0; i < n; i++){
-                test_set = curr_set;
-                // build new candidate element
-                candidate.id = i;
-                // if the candidate is in the set already, continue
-                if (test_set.find(candidate) != test_set.end()){
-                    continue;
-                }
-
-                // add the candidate element to the current set
-                test_set.insert(candidate);
-
-                // check if adding the element violates the constraint
-                if(! constraint->test_membership(test_set)){
-                    continue;
-                }
-
-                candidate.set_value((F(test_set) - curr_val)/(K->value(candidate)));  // compute its value
-                std::cout<< "Test set:" <<std::endl;
-                std::cout << test_set << std::endl;
-                std::cout << "Marginal val:" << candidate.value << std::endl;
-
-                // if it is the best right now, remember it
-                best = std::max(best, candidate);
-            }
-
-            // check if we could even add an element to set
-            if (best.value < 0){
-                constraint_saturated = true;  // no more elements could be feasibly added
-            } else{
-                // update the current set, value, and budget value with the found item
-                curr_set.insert(best);
-                curr_budget = K->value(curr_set); // update the budget
-                curr_val = curr_val + best.value;
                 constraint_saturated = constraint->is_saturated(curr_set);  // check if constraint is now saturated
             }
         };
