@@ -8,23 +8,6 @@
 #include "SFO_core/cost_function.hpp"
 #include "SFO_core/constraint.hpp"
 
-
-// need to map numbers from 1-N to element*'s in the ground set
-// need to track elements in container sorted by marginal_value
-// need to be able to access subsets of the container according to random sampling
-// set sorts by element comparison operator (value, Element*)
-
-// comparison function for sorting elements by marginal value
-/*class compare_elements{
-    public:
-        bool operator()(const std::pair<Element*, double> &lhs, const std::pair<Element*, double> &rhs){
-            return lhs.second < rhs.second;
-        };
-};
-
-// for brevity later, defines a priority queue where element pointers are sorted by marginal value
-typedef std::priority_queue<std::pair<Element*, double>,std::vector<std::pair<Element*,double>>,compare_elements> LazyGreedyQueue;
-*/
 class StochasticGreedyAlgorithm{
     private:
         double curr_val = 0;  // current value of elements in set
