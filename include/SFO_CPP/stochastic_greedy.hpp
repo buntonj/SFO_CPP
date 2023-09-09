@@ -8,7 +8,7 @@
 #include "SFO_core/cost_function.hpp"
 #include "SFO_core/constraint.hpp"
 
-class StochasticGreedyAlgorithm{
+template<typename E> class StochasticGreedyAlgorithm{
     private:
         double curr_val = 0;  // current value of elements in set
         int b;
@@ -18,10 +18,10 @@ class StochasticGreedyAlgorithm{
     public:
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         constraint::Constraint *constraint;
-        std::unordered_set<Element*> *ground_set;
-        std::vector<Element*> ground_set_idxs;  // this maps us from an integer to an element
-        std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
-        std::unordered_set<Element*> to_erase;
+        std::unordered_set<E*> *ground_set;
+        std::vector<E*> ground_set_idxs;  // this maps us from an integer to an element
+        std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
+        std::unordered_set<E*> to_erase;
 
         StochasticGreedyAlgorithm(int &N){
             this->set_ground_set(this->generate_ground_set(N));
@@ -32,22 +32,22 @@ class StochasticGreedyAlgorithm{
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        StochasticGreedyAlgorithm(std::unordered_set<Element*> *V){
+        StochasticGreedyAlgorithm(std::unordered_set<E*> *V){
             this->set_ground_set(V);
         };
 
-        StochasticGreedyAlgorithm(std::unordered_set<Element*> *V, int &B){
+        StochasticGreedyAlgorithm(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        std::unordered_set<Element*>* generate_ground_set(int &n){
-            std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
-            Element* el;
+        std::unordered_set<E*>* generate_ground_set(int &n){
+            std::unordered_set<E*> *V = new std::unordered_set<E*>;
+            E* el;
             int id = 0;
             for (int i=0; i<n; i++){
                 id++;
-                el = new Element;
+                el = new E;
                 el->id = id;
                 el->value = 0;
                 V->insert(el);
@@ -55,7 +55,7 @@ class StochasticGreedyAlgorithm{
             return V;
         }
 
-        void set_ground_set(std::unordered_set<Element*> *V){
+        void set_ground_set(std::unordered_set<E*> *V){
             this->ground_set = V;
             this->n = V->size();
             this->index_ground_set();
@@ -81,7 +81,7 @@ class StochasticGreedyAlgorithm{
                 this->curr_val = 0;
                 // first, compute how many samples to randomly pull at each step
                 int sample_size = random_set_size(epsilon, n, double(b));
-                std::unordered_set<Element*> *sample_set = new std::unordered_set<Element*>;
+                std::unordered_set<E*> *sample_set = new std::unordered_set<E*>;
                 int counter=0;
                 while (!constraint_saturated && counter < MAXITER){
                     counter++;
@@ -113,9 +113,9 @@ class StochasticGreedyAlgorithm{
             return int(std::min((double(ground_set_size)/budget)*log(1.0/epsilon), double(ground_set_size)));
         }
 
-        std::unordered_set<Element*> sample_ground_set(int &set_size){
-            std::unordered_set<Element*> random_set;
-            Element* candidate;
+        std::unordered_set<E*> sample_ground_set(int &set_size){
+            std::unordered_set<E*> random_set;
+            E* candidate;
             int rand_idx;
             int count = 0;
             // main sampling loop
@@ -140,9 +140,9 @@ class StochasticGreedyAlgorithm{
             return random_set;
         }
 
-        void stochastic_greedy_step(costfunction::CostFunction &F, std::unordered_set<Element*> *sampled_set){
-            std::unordered_set <Element*> test_set(curr_set);
-            Element* best_el;
+        void stochastic_greedy_step(costfunction::CostFunction &F, std::unordered_set<E*> *sampled_set){
+            std::unordered_set <E*> test_set(curr_set);
+            E* best_el;
             double best_marginal_val = -DBL_MAX;
             double candidate_marginal_val = 0;
 

@@ -9,7 +9,7 @@
 #include "SFO_core/cost_function.hpp"
 #include "SFO_core/constraint.hpp"
 
-class LazierThanLazyGreedy{
+template<typename E> class LazierThanLazyGreedy{
     private:
         double curr_val = 0;  // current value of elements in set
         int b;
@@ -19,10 +19,10 @@ class LazierThanLazyGreedy{
     public:
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         constraint::Constraint *constraint;
-        std::unordered_set<Element*> *ground_set;
-        std::vector<Element*> ground_set_idxs;  // this maps us from an integer to an element
-        std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
-        std::unordered_map<Element*, double> marginals;  // will hold marginal values of all elements we have evaluated
+        std::unordered_set<E*> *ground_set;
+        std::vector<E*> ground_set_idxs;  // this maps us from an integer to an element
+        std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
+        std::unordered_map<E*, double> marginals;  // will hold marginal values of all elements we have evaluated
 
         LazierThanLazyGreedy(int &N){
             this->set_ground_set(this->generate_ground_set(N));
@@ -33,22 +33,22 @@ class LazierThanLazyGreedy{
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        LazierThanLazyGreedy(std::unordered_set<Element*> *V){
+        LazierThanLazyGreedy(std::unordered_set<E*> *V){
             this->set_ground_set(V);
         };
 
-        LazierThanLazyGreedy(std::unordered_set<Element*> *V, int &B){
+        LazierThanLazyGreedy(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        std::unordered_set<Element*>* generate_ground_set(int &n){
-            std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
-            Element* el;
+        std::unordered_set<E*>* generate_ground_set(int &n){
+            std::unordered_set<E*> *V = new std::unordered_set<E*>;
+            E* el;
             int id = 0;
             for (int i=0; i<n; i++){
                 id++;
-                el = new Element;
+                el = new E;
                 el->id = id;
                 el->value = 0;
                 V->insert(el);
@@ -56,7 +56,7 @@ class LazierThanLazyGreedy{
             return V;
         }
 
-        void set_ground_set(std::unordered_set<Element*> *V){
+        void set_ground_set(std::unordered_set<E*> *V){
             this->ground_set = V;
             this->n = V->size();
             this->index_ground_set();
@@ -70,9 +70,9 @@ class LazierThanLazyGreedy{
             }
         }
 
-        LazyGreedyQueue sample_to_marginals(std::unordered_set<Element*> *sample_set){
-            LazyGreedyQueue sample_marginals;
-            std::pair<Element*, double> marginal;
+        LazyGreedyQueue<E> sample_to_marginals(std::unordered_set<E*> *sample_set){
+            LazyGreedyQueue<E> sample_marginals;
+            std::pair<E*, double> marginal;
             for(auto it:*sample_set){
                 marginal.first = it;
                 if(marginals.find(it) != marginals.end()){
@@ -85,10 +85,10 @@ class LazierThanLazyGreedy{
             return sample_marginals;
         }
 
-        void update_marginals(LazyGreedyQueue sampled_marginals){
+        void update_marginals(LazyGreedyQueue<E> sampled_marginals){
             // helper function
             // updates the running total marginals with the sampled set
-            std::pair<Element*, double> candidate;
+            std::pair<E*, double> candidate;
             while(!sampled_marginals.empty()){
                 candidate = sampled_marginals.top();
                 marginals[candidate.first] = candidate.second;
@@ -114,8 +114,8 @@ class LazierThanLazyGreedy{
                 this->curr_val = 0;
                 // first, compute how many samples to randomly pull at each step
                 int sample_size = random_set_size(epsilon, n, double(b));
-                std::unordered_set<Element*> *sample_set = new std::unordered_set<Element*>;
-                LazyGreedyQueue sample_marginals;
+                std::unordered_set<E*> *sample_set = new std::unordered_set<E*>;
+                LazyGreedyQueue<E> sample_marginals;
                 int counter=0;
                 while (!constraint_saturated && counter < MAXITER){
                     counter++;
@@ -149,9 +149,9 @@ class LazierThanLazyGreedy{
             return int(std::min((double(ground_set_size)/budget)*log(1.0/epsilon), double(ground_set_size)));
         }
 
-        std::unordered_set<Element*> sample_ground_set(int &set_size){
-            std::unordered_set<Element*> random_set;
-            Element* candidate;
+        std::unordered_set<E*> sample_ground_set(int &set_size){
+            std::unordered_set<E*> random_set;
+            E* candidate;
             int rand_idx;
             int count = 0;
             // main sampling loop
@@ -174,9 +174,9 @@ class LazierThanLazyGreedy{
             return random_set;
         }
 
-        void lazier_than_lazy_greedy_step(costfunction::CostFunction &F, LazyGreedyQueue &sampled_marginals){
-            std::unordered_set <Element*> test_set(curr_set);
-            std::pair<Element*, double> candidate;
+        void lazier_than_lazy_greedy_step(costfunction::CostFunction &F, LazyGreedyQueue<E> &sampled_marginals){
+            std::unordered_set <E*> test_set(curr_set);
+            std::pair<E*, double> candidate;
 
             // iterate through all candidate element IDs
             while(! sampled_marginals.empty()){

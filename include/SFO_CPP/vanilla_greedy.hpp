@@ -35,6 +35,17 @@ template<typename E> class GreedyAlgorithm{
             this->set_ground_set(V);
             this->add_constraint(new constraint::Cardinality(B));
         };
+        
+        std::unordered_set<E*>* generate_ground_set(int &n){
+            std::unordered_set<E*> *V = new std::unordered_set<E*>;
+            int id = 0;
+            double val = 0;
+            for (int i=0; i<n; i++){
+                id++;
+                V->insert(new E(id, val));
+            }
+            return V;
+        }
 
         void set_ground_set(std::unordered_set<E*> *V){
             this->ground_set = V;

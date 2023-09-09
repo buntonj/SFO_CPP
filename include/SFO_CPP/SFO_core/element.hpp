@@ -98,14 +98,15 @@ bool operator< (const Element& e1, const Element& e2){
     return e1.value <= e2.value;
 }
 
-class compare_elements{
+template<typename E> class compare_elements{
     public:
-        bool operator()(const std::pair<Element*, double> &lhs, const std::pair<Element*, double> &rhs){
+        bool operator()(const std::pair<E*, double> &lhs, const std::pair<E*, double> &rhs){
             return lhs.second < rhs.second;
         };
 };
 
-typedef std::priority_queue<std::pair<Element*, double>,std::vector<std::pair<Element*,double>>,compare_elements> LazyGreedyQueue;
+template<typename E>
+using LazyGreedyQueue = std::priority_queue<std::pair<E*, double>,std::vector<std::pair<E*,double>>,compare_elements<E>>;
 
 std::unordered_set<Element*>* generate_ground_set(int &N){
     // helper function to generate a ground set of N elements

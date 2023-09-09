@@ -6,7 +6,7 @@ project("sfo_cpp"
         HOMEPAGE_URL "https://github.com/buntonj/SFO_CPP"
         LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(INSTALL_SFO_LIBRARY "Enable installing into default location" OFF)

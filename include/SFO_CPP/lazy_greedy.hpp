@@ -9,17 +9,17 @@
 #include "SFO_core/constraint.hpp"
 
 
-class LazyGreedy{
+template<typename E> class LazyGreedy{
     private:
         double curr_val = 0;  // current value of elements in set
         bool constraint_saturated = false;
         int MAXITER = 15;
 
     public:
-        std::unordered_set<Element*> *ground_set;
+        std::unordered_set<E*> *ground_set;
         int n;  // holds size of ground set, indexed from 0 to n-1
-        std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
-        LazyGreedyQueue marginals; // will hold marginals
+        std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
+        LazyGreedyQueue<E> marginals; // will hold marginals
         constraint::Constraint *constraint;
 
         LazyGreedy(int &N){
@@ -31,27 +31,27 @@ class LazyGreedy{
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        LazyGreedy(std::unordered_set<Element*> *V){
+        LazyGreedy(std::unordered_set<E*> *V){
             this->set_ground_set(V);
         };
 
-        LazyGreedy(std::unordered_set<Element*> *V, int &B){
+        LazyGreedy(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        std::unordered_set<Element*>* generate_ground_set(int &n){
-            std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
+        std::unordered_set<E*>* generate_ground_set(int &n){
+            std::unordered_set<E*> *V = new std::unordered_set<E*>;
             int id = 0;
             double val = 0;
             for (int i=0; i<n; i++){
                 id++;
-                V->insert(new Element(id, val));
+                V->insert(new E(id, val));
             }
             return V;
         }
 
-        void set_ground_set(std::unordered_set<Element*> *V){
+        void set_ground_set(std::unordered_set<E*> *V){
             this->ground_set = V;
             this->n = V->size();
         }
@@ -63,7 +63,7 @@ class LazyGreedy{
             this->clear_marginals();
         }
 
-        void run_greedy(costfunction::CostFunction &F, std::unordered_set<Element*> *V, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction &F, std::unordered_set<E*> *V, bool cost_benefit){
             if(V->size() < 1){
                 std::cout<<"Ground set is empty!" <<std::endl;
                 return;
@@ -124,8 +124,8 @@ class LazyGreedy{
 
         // Special function for first iteration, populates priority queue
         void first_iteration(costfunction::CostFunction &F){
-            std::unordered_set<Element*> test_set(curr_set);
-            std::pair<Element*, double> candidate(nullptr, -DBL_MAX);
+            std::unordered_set<E*> test_set(curr_set);
+            std::pair<E*, double> candidate(nullptr, -DBL_MAX);
 
             for(auto el=ground_set->begin(); el != ground_set->end(); ++el){
                 test_set = curr_set;
@@ -172,10 +172,10 @@ class LazyGreedy{
 
         // Special function for first iteration, populates priority queue
         void cost_benefit_first_iteration(costfunction::CostFunction &F, constraint::Knapsack *K, double &curr_budget){
-            std::unordered_set<Element*> test_set(curr_set);
-            std::unordered_map<Element*, double> pure_vals;
-            std::unordered_map<Element*, double> pure_knaps;
-            std::pair<Element*, double> candidate;
+            std::unordered_set<E*> test_set(curr_set);
+            std::unordered_map<E*, double> pure_vals;
+            std::unordered_map<E*, double> pure_knaps;
+            std::pair<E*, double> candidate;
 
             for(auto el=ground_set->begin(); el != ground_set->end(); ++el){
                 test_set = curr_set;
@@ -220,8 +220,8 @@ class LazyGreedy{
         }
 
         void lazy_greedy_step(costfunction::CostFunction &F){
-            std::unordered_set <Element*> test_set(curr_set);
-            std::pair<Element*, double> candidate;
+            std::unordered_set <E*> test_set(curr_set);
+            std::pair<E*, double> candidate;
 
             // iterate through all candidate element IDs
             while(! marginals.empty()){
@@ -264,10 +264,10 @@ class LazyGreedy{
         };
 
         void cost_benefit_lazy_greedy_step(costfunction::CostFunction &F, constraint::Knapsack* K, double curr_budget){
-            std::unordered_set <Element*> test_set(curr_set);
-            std::unordered_map<Element*, double> pure_vals;
-            std::unordered_map<Element*, double> pure_knaps;
-            std::pair<Element*, double> candidate;
+            std::unordered_set <E*> test_set(curr_set);
+            std::unordered_map<E*, double> pure_vals;
+            std::unordered_map<E*, double> pure_knaps;
+            std::pair<E*, double> candidate;
 
                         // iterate through all candidate element IDs
             while(! marginals.empty()){
@@ -314,7 +314,7 @@ class LazyGreedy{
         };
 
         void clear_marginals(){
-            LazyGreedyQueue empty;
+            LazyGreedyQueue<E> empty;
             std::swap(marginals, empty);
         }
 };
