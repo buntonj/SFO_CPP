@@ -9,8 +9,6 @@
 #include "SFO_core/cost_function.hpp"
 #include "SFO_core/constraint.hpp"
 
-//TODO: replace index map with indexed vector, handle removal of elements this way?
-
 class LazierThanLazyGreedy{
     private:
         double curr_val = 0;  // current value of elements in set
@@ -22,7 +20,7 @@ class LazierThanLazyGreedy{
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         constraint::Constraint *constraint;
         std::unordered_set<Element*> *ground_set;
-        std::unordered_map<int, Element*> ground_set_idxs;  // this maps us from an integer to an element
+        std::vector<Element*> ground_set_idxs;  // this maps us from an integer to an element
         std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
         std::unordered_map<Element*, double> marginals;  // will hold marginal values of all elements we have evaluated
 
@@ -67,7 +65,7 @@ class LazierThanLazyGreedy{
         void index_ground_set(){
             int idx = 0;
             for (auto el=ground_set->begin(); el != ground_set->end(); ++el, ++idx){
-                ground_set_idxs.insert({idx, *el});
+                ground_set_idxs.push_back(*el);
                 marginals.insert({*el, DBL_MAX});
             }
         }
@@ -126,6 +124,7 @@ class LazierThanLazyGreedy{
                     sample_marginals = sample_to_marginals(sample_set);
                     lazier_than_lazy_greedy_step(C, sample_marginals);
                     update_marginals(sample_marginals);
+                    sample_size = std::min(sample_size, int(marginals.size()));
                     std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
                     print_status();
                 }
@@ -157,13 +156,17 @@ class LazierThanLazyGreedy{
             int count = 0;
             // main sampling loop
             while(count  < set_size){
-                rand_idx = rand() % n;  // pull a random index between 0 and n
+                rand_idx = rand() % ground_set_idxs.size();  // pull a random index between 0 and n
                 candidate = ground_set_idxs[rand_idx]; // find which element pointer it corresponds to
-
                 // first see if we have added it to the set already
-                if(random_set.find(candidate) == random_set.end() && marginals.find(candidate) !=  marginals.end()){
-                    random_set.insert(ground_set_idxs[rand_idx]);
-                    count++; // increment number of elements in our set
+                if(random_set.find(candidate) == random_set.end()){
+                    if (marginals.find(candidate) == marginals.end()){
+                        // if there is no marginal, then it is invalid
+                        ground_set_idxs.erase(ground_set_idxs.begin()+rand_idx);
+                    } else{
+                        random_set.insert(ground_set_idxs[rand_idx]);
+                        count++; // increment number of elements in our set
+                    }
                 } else {
                     continue;
                 }

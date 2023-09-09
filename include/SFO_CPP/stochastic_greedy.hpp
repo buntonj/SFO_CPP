@@ -19,8 +19,9 @@ class StochasticGreedyAlgorithm{
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         constraint::Constraint *constraint;
         std::unordered_set<Element*> *ground_set;
-        std::unordered_map<int, Element*> ground_set_idxs;  // this maps us from an integer to an element
+        std::vector<Element*> ground_set_idxs;  // this maps us from an integer to an element
         std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
+        std::unordered_set<Element*> to_erase;
 
         StochasticGreedyAlgorithm(int &N){
             this->set_ground_set(this->generate_ground_set(N));
@@ -63,7 +64,7 @@ class StochasticGreedyAlgorithm{
         void index_ground_set(){
             int idx = 0;
             for (auto el=ground_set->begin(); el != ground_set->end(); ++el, ++idx){
-                ground_set_idxs.insert({idx, *el});
+                ground_set_idxs.push_back(*el);
             }
         }
 
@@ -85,7 +86,9 @@ class StochasticGreedyAlgorithm{
                 while (!constraint_saturated && counter < MAXITER){
                     counter++;
                     *sample_set = sample_ground_set(sample_size);
+                    std::cout<<"Sampled set: "<< *sample_set <<std::endl;
                     stochastic_greedy_step(C, sample_set);
+                    sample_size = std::min(sample_size, int(ground_set_idxs.size()));
                     std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
                     print_status();
                 }
@@ -117,10 +120,13 @@ class StochasticGreedyAlgorithm{
             int count = 0;
             // main sampling loop
             while(count  < set_size){
-                rand_idx = rand() % n;  // pull a random index between 0 and n
+                rand_idx = rand() % ground_set_idxs.size();  // pull a random index between 0 and n
                 candidate = ground_set_idxs[rand_idx]; // find which element pointer it corresponds to
+                if(to_erase.find(candidate) != to_erase.end()){
+                    ground_set_idxs.erase(ground_set_idxs.begin()+rand_idx);
+                }
 
-                // first see if we have added it to the set already
+                // first see if we haven't added it to the set already
                 if(random_set.find(candidate) == random_set.end()){
                     random_set.insert(ground_set_idxs[rand_idx]);
                     count++; // increment number of elements in our set
@@ -152,6 +158,8 @@ class StochasticGreedyAlgorithm{
                 test_set.insert(*el);
 
                 if (! constraint->test_membership(test_set)){
+                    // mark the element to not be considered or sampled
+                    this->to_erase.insert(*el);
                     continue;
                 }
 

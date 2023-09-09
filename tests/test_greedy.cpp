@@ -15,7 +15,7 @@ int main(){
     LazyGreedy lazygreedy(ground_set);
     StochasticGreedyAlgorithm stochasticgreedy(ground_set);
     LazierThanLazyGreedy lazier_than_lazy_greedy(ground_set);
-    double epsilon = 0.01;
+    double epsilon = 0.25;
 
     std::unordered_map<Element*, double> weights;
     int i = 0;
