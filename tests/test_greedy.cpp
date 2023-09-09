@@ -3,6 +3,7 @@
 #include "sfo_cpp/vanilla_greedy.hpp"
 #include "sfo_cpp/lazy_greedy.hpp"
 #include "sfo_cpp/stochastic_greedy.hpp"
+#include "sfo_cpp/lazier_than_lazy_greedy.hpp"
 #include "sfo_cpp/SFO_core/constraint.hpp"
 
 
@@ -13,6 +14,7 @@ int main(){
     std::unordered_set<Element*> *ground_set = greedy.ground_set;
     LazyGreedy lazygreedy(ground_set);
     StochasticGreedyAlgorithm stochasticgreedy(ground_set);
+    LazierThanLazyGreedy lazier_than_lazy_greedy(ground_set);
     double epsilon = 0.01;
 
     std::unordered_map<Element*, double> weights;
@@ -31,6 +33,7 @@ int main(){
     greedy.add_constraint(card); // add the cardinality constraint
     lazygreedy.add_constraint(crd);
     stochasticgreedy.add_constraint(crd);
+    lazier_than_lazy_greedy.add_constraint(crd);
     // lazygreedy.set_ground_set(greedy.ground_set);
     std::cout<< "Successfully built greedy algorithms." <<std::endl;
     std::cout<< std::endl << "****************RUNNING MODULAR COSTS*************" << std::endl;
@@ -47,6 +50,9 @@ int main(){
     std::cout<<"==============STOCHASTIC GREEDY==============" << std::endl;
     stochasticgreedy.clear_set();
     stochasticgreedy.run_greedy(*modular, epsilon);
+    std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
+    lazier_than_lazy_greedy.clear_set();
+    lazier_than_lazy_greedy.run_greedy(*modular, epsilon);
 
     std::cout<< std::endl << "******************SQRT MODULAR COST*****************" << std::endl;
     std::cout<<"==============VANILLA GREEDY==============" << std::endl;
@@ -58,6 +64,9 @@ int main(){
     std::cout<<"==============STOCHASTIC GREEDY==============" << std::endl;
     stochasticgreedy.clear_set();
     stochasticgreedy.run_greedy(*sqrtmodular, epsilon);
+    std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
+    lazier_than_lazy_greedy.clear_set();
+    lazier_than_lazy_greedy.run_greedy(*sqrtmodular, epsilon);
 
     // cleanup
     delete cardinality;

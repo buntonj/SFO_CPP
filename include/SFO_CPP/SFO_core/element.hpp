@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <iostream>
+#include <queue>
 #include <unordered_set>
 
 class Element{
@@ -96,3 +97,12 @@ bool operator!= (const Element& e1, const Element& e2){
 bool operator< (const Element& e1, const Element& e2){
     return e1.value <= e2.value;
 }
+
+class compare_elements{
+    public:
+        bool operator()(const std::pair<Element*, double> &lhs, const std::pair<Element*, double> &rhs){
+            return lhs.second < rhs.second;
+        };
+};
+
+typedef std::priority_queue<std::pair<Element*, double>,std::vector<std::pair<Element*,double>>,compare_elements> LazyGreedyQueue;
