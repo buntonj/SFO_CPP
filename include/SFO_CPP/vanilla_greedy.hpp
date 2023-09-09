@@ -6,56 +6,42 @@
 #include "SFO_core/element.hpp"
 #include "SFO_core/constraint.hpp"
 
-class GreedyAlgorithm{
+template<typename E> class GreedyAlgorithm{
     private:
         double curr_val = 0;  // current value of elements in set
         bool constraint_saturated = false;
         int MAXITER = 15;
 
     public:
-        std::unordered_set<Element*> *ground_set;  // pointer to ground set of elements
+        std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         constraint::Constraint *constraint;
-        std::unordered_set<Element*> curr_set;  // will hold elements selected to be in our set
+        std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
 
         GreedyAlgorithm(int &N){
-            this->set_ground_set(this->generate_ground_set(N));
+            this->set_ground_set(generate_ground_set(N));
         };
 
         GreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
-            this->set_ground_set(this->generate_ground_set(N));
+            this->set_ground_set(generate_ground_set(N));
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        GreedyAlgorithm(std::unordered_set<Element*> *V){
+        GreedyAlgorithm(std::unordered_set<E*> *V){
             this->set_ground_set(V);
         };
 
-        GreedyAlgorithm(std::unordered_set<Element*> *V, int &B){
+        GreedyAlgorithm(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
             this->add_constraint(new constraint::Cardinality(B));
         };
 
-        std::unordered_set<Element*>* generate_ground_set(int &n){
-            std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
-            Element* el;
-            int id = 0;
-            for (int i=0; i<n; i++){
-                id++;
-                el = new Element;
-                el->id = id;
-                el->value = 0;
-                V->insert(el);
-            }
-            return V;
-        }
-
-        void set_ground_set(std::unordered_set<Element*> *V){
+        void set_ground_set(std::unordered_set<E*> *V){
             this->ground_set = V;
             this->n = V->size();
         }
 
-        void run_greedy(costfunction::CostFunction &C, std::unordered_set<Element*> *V){
+        void run_greedy(costfunction::CostFunction &C, std::unordered_set<E*> *V){
             if(V->size() < 1){
                 std::cout << "Ground set is empty!" << std::endl;
                 return;
@@ -104,7 +90,7 @@ class GreedyAlgorithm{
             }
         };
 
-        void run_greedy(costfunction::CostFunction &C, std::unordered_set<Element*> *V, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction &C, std::unordered_set<E*> *V, bool cost_benefit){
             if(V->size() < 1){
                 std::cout<< "Ground set has size zero!" << std::endl;
                 return;
@@ -133,8 +119,8 @@ class GreedyAlgorithm{
 
     private:
         void greedy_step(costfunction::CostFunction &F){
-            std::unordered_set <Element*> test_set(curr_set);
-            Element* best_el;
+            std::unordered_set <E*> test_set(curr_set);
+            E* best_el;
             double best_marginal_val = -DBL_MAX;
             double candidate_marginal_val = 0;
 
@@ -174,8 +160,8 @@ class GreedyAlgorithm{
         };
 
         void cost_benefit_greedy_step(costfunction::CostFunction &F, constraint::Knapsack *K, double &curr_budget){
-            std::unordered_set <Element*> test_set(curr_set);
-            Element* best_el;
+            std::unordered_set <E*> test_set(curr_set);
+            E* best_el;
             double best_marginal_val = -DBL_MAX;
             double best_marginal_cost = 1;
             double candidate_marginal_cost = 1;

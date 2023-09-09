@@ -10,8 +10,9 @@
 int main(){
     int set_size = 10;
     int budget = 3;
-    GreedyAlgorithm greedy(set_size);
-    std::unordered_set<Element*> *ground_set = greedy.ground_set;
+    std::unordered_set<Element*> *ground_set = generate_ground_set(set_size);
+    GreedyAlgorithm greedy(ground_set);
+    // std::unordered_set<Element*> *ground_set = greedy.ground_set;
     LazyGreedy lazygreedy(ground_set);
     StochasticGreedyAlgorithm stochasticgreedy(ground_set);
     LazierThanLazyGreedy lazier_than_lazy_greedy(ground_set);

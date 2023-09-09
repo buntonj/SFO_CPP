@@ -122,16 +122,19 @@ class StochasticGreedyAlgorithm{
             while(count  < set_size){
                 rand_idx = rand() % ground_set_idxs.size();  // pull a random index between 0 and n
                 candidate = ground_set_idxs[rand_idx]; // find which element pointer it corresponds to
+                
+                // first, check if it is no longer feasible and toss it if so
                 if(to_erase.find(candidate) != to_erase.end()){
                     ground_set_idxs.erase(ground_set_idxs.begin()+rand_idx);
-                }
-
-                // first see if we haven't added it to the set already
-                if(random_set.find(candidate) == random_set.end()){
-                    random_set.insert(ground_set_idxs[rand_idx]);
-                    count++; // increment number of elements in our set
+                    to_erase.erase(candidate);
                 } else {
-                    continue;
+                    // then see if we haven't added it to the set already
+                    if(random_set.find(candidate) == random_set.end()){
+                        random_set.insert(ground_set_idxs[rand_idx]);
+                        count++; // increment number of elements in our set
+                    } else {
+                        continue;
+                    }
                 }
             }
             return random_set;

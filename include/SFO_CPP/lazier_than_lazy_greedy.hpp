@@ -161,7 +161,7 @@ class LazierThanLazyGreedy{
                 // first see if we have added it to the set already
                 if(random_set.find(candidate) == random_set.end()){
                     if (marginals.find(candidate) == marginals.end()){
-                        // if there is no marginal, then it is invalid
+                        // if there is no associated marginal, then it is no longer feasible
                         ground_set_idxs.erase(ground_set_idxs.begin()+rand_idx);
                     } else{
                         random_set.insert(ground_set_idxs[rand_idx]);

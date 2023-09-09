@@ -106,3 +106,18 @@ class compare_elements{
 };
 
 typedef std::priority_queue<std::pair<Element*, double>,std::vector<std::pair<Element*,double>>,compare_elements> LazyGreedyQueue;
+
+std::unordered_set<Element*>* generate_ground_set(int &N){
+    // helper function to generate a ground set of N elements
+    std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
+    Element* el;
+    int id = 0;
+    for (int i=0; i<N; i++){
+        id++;
+        el = new Element;
+        el->id = id;
+        el->value = 0;
+        V->insert(el);
+    }
+    return V;
+}
