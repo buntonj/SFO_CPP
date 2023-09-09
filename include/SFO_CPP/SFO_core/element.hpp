@@ -117,7 +117,7 @@ std::unordered_set<Element*>* generate_ground_set(int &N){
         id++;
         el = new Element;
         el->id = id;
-        el->value = 0;
+        el->value = id*id;
         V->insert(el);
     }
     return V;

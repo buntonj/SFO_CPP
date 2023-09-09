@@ -10,26 +10,24 @@
 int main(){
     int set_size = 10;
     int budget = 3;
-    // std::unordered_set<Element*> *ground_set = generate_ground_set(set_size);
-    GreedyAlgorithm<Element> greedy(set_size);
-    std::unordered_set<Element*> *ground_set = greedy.ground_set;
+    std::unordered_set<Element*> *ground_set = generate_ground_set(set_size);
+    GreedyAlgorithm<Element> greedy(ground_set);
+    // std::unordered_set<Element*> *ground_set = greedy.ground_set;
     LazyGreedy lazygreedy(ground_set);
     StochasticGreedyAlgorithm stochasticgreedy(ground_set);
     LazierThanLazyGreedy lazier_than_lazy_greedy(ground_set);
     double epsilon = 0.25;
 
     std::unordered_map<Element*, double> weights;
-    int i = 0;
     for(auto el:(*ground_set)){
-        i++;
-        weights.insert({el, float(i)*float(i)});
+        weights.insert({el, float(el->id)*float(el->id)});
     }
 
-    costfunction::CostFunction* cardinality = new costfunction::Modular;
-    costfunction::CostFunction* modular = new costfunction::Modular(weights);
-    costfunction::CostFunction* sqrtmodular = new costfunction::SquareRootModular;
-    constraint::Constraint* card = new constraint::Knapsack(budget);
-    constraint::Constraint* crd = new constraint::Cardinality(budget);
+    costfunction::CostFunction<Element>* cardinality = new costfunction::Modular<Element>;
+    costfunction::CostFunction<Element>* modular = new costfunction::Modular<Element>(weights);
+    costfunction::CostFunction<Element>* sqrtmodular = new costfunction::SquareRootModular<Element>;
+    constraint::Constraint<Element>* card = new constraint::Knapsack<Element>(budget);
+    constraint::Constraint<Element>* crd = new constraint::Cardinality<Element>(budget);
     
     greedy.add_constraint(card); // add the cardinality constraint
     lazygreedy.add_constraint(crd);

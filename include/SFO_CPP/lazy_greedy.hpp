@@ -20,7 +20,7 @@ template<typename E> class LazyGreedy{
         int n;  // holds size of ground set, indexed from 0 to n-1
         std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
         LazyGreedyQueue<E> marginals; // will hold marginals
-        constraint::Constraint *constraint;
+        constraint::Constraint<E> *constraint;
 
         LazyGreedy(int &N){
             this->set_ground_set(this->generate_ground_set(N));
@@ -28,7 +28,7 @@ template<typename E> class LazyGreedy{
 
         LazyGreedy(int &N, int &B){  // If you give a budget, initialize a budget constraint
             this->set_ground_set(this->generate_ground_set(N));
-            this->add_constraint(new constraint::Cardinality(B));
+            this->add_constraint(new constraint::Cardinality<E>(B));
         };
 
         LazyGreedy(std::unordered_set<E*> *V){
@@ -37,7 +37,7 @@ template<typename E> class LazyGreedy{
 
         LazyGreedy(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
-            this->add_constraint(new constraint::Cardinality(B));
+            this->add_constraint(new constraint::Cardinality<E>(B));
         };
 
         std::unordered_set<E*>* generate_ground_set(int &n){
@@ -63,7 +63,7 @@ template<typename E> class LazyGreedy{
             this->clear_marginals();
         }
 
-        void run_greedy(costfunction::CostFunction &F, std::unordered_set<E*> *V, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction<E> &F, std::unordered_set<E*> *V, bool cost_benefit){
             if(V->size() < 1){
                 std::cout<<"Ground set is empty!" <<std::endl;
                 return;
@@ -73,14 +73,14 @@ template<typename E> class LazyGreedy{
             }
         }
 
-        void run_greedy(costfunction::CostFunction &F, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction<E> &F, bool cost_benefit){
             if (this->n < 1){
                 std::cout<< "No ground set given!" << std::endl;
                 return;
             }
             if(!cost_benefit){
                 run_greedy(F);
-            } else if(constraint::Knapsack* K = dynamic_cast<constraint::Knapsack*>(constraint); K != nullptr){
+            } else if(constraint::Knapsack<E>*K = dynamic_cast<constraint::Knapsack<E>*>(constraint); K != nullptr){
                 int counter = 1;
                 double budget = 0;
                 clear_marginals();
@@ -96,7 +96,7 @@ template<typename E> class LazyGreedy{
             }
         };
 
-        void run_greedy(costfunction::CostFunction &cost_function){
+        void run_greedy(costfunction::CostFunction<E> &cost_function){
             clear_marginals();
             first_iteration(cost_function);  // initializes marginals in first greedy iteration
             int counter=1;
@@ -116,14 +116,14 @@ template<typename E> class LazyGreedy{
             std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
         };
 
-        void add_constraint(constraint::Constraint *C){
+        void add_constraint(constraint::Constraint<E> *C){
             constraint = C;
         }
 
     private:
 
         // Special function for first iteration, populates priority queue
-        void first_iteration(costfunction::CostFunction &F){
+        void first_iteration(costfunction::CostFunction<E> &F){
             std::unordered_set<E*> test_set(curr_set);
             std::pair<E*, double> candidate(nullptr, -DBL_MAX);
 
@@ -171,7 +171,7 @@ template<typename E> class LazyGreedy{
         }
 
         // Special function for first iteration, populates priority queue
-        void cost_benefit_first_iteration(costfunction::CostFunction &F, constraint::Knapsack *K, double &curr_budget){
+        void cost_benefit_first_iteration(costfunction::CostFunction<E> &F, constraint::Knapsack<E> *K, double &curr_budget){
             std::unordered_set<E*> test_set(curr_set);
             std::unordered_map<E*, double> pure_vals;
             std::unordered_map<E*, double> pure_knaps;
@@ -219,7 +219,7 @@ template<typename E> class LazyGreedy{
             }
         }
 
-        void lazy_greedy_step(costfunction::CostFunction &F){
+        void lazy_greedy_step(costfunction::CostFunction<E> &F){
             std::unordered_set <E*> test_set(curr_set);
             std::pair<E*, double> candidate;
 
@@ -263,7 +263,7 @@ template<typename E> class LazyGreedy{
             }
         };
 
-        void cost_benefit_lazy_greedy_step(costfunction::CostFunction &F, constraint::Knapsack* K, double curr_budget){
+        void cost_benefit_lazy_greedy_step(costfunction::CostFunction<E> &F, constraint::Knapsack<E>* K, double curr_budget){
             std::unordered_set <E*> test_set(curr_set);
             std::unordered_map<E*, double> pure_vals;
             std::unordered_map<E*, double> pure_knaps;

@@ -15,7 +15,7 @@ template<typename E> class GreedyAlgorithm{
     public:
         std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
-        constraint::Constraint *constraint;
+        constraint::Constraint<E> *constraint;
         std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
 
         GreedyAlgorithm(int &N){
@@ -24,7 +24,7 @@ template<typename E> class GreedyAlgorithm{
 
         GreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
             this->set_ground_set(generate_ground_set(N));
-            this->add_constraint(new constraint::Cardinality(B));
+            this->add_constraint(new constraint::Cardinality<E>(B));
         };
 
         GreedyAlgorithm(std::unordered_set<E*> *V){
@@ -33,7 +33,7 @@ template<typename E> class GreedyAlgorithm{
 
         GreedyAlgorithm(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
-            this->add_constraint(new constraint::Cardinality(B));
+            this->add_constraint(new constraint::Cardinality<E>(B));
         };
         
         std::unordered_set<E*>* generate_ground_set(int &n){
@@ -52,7 +52,7 @@ template<typename E> class GreedyAlgorithm{
             this->n = V->size();
         }
 
-        void run_greedy(costfunction::CostFunction &C, std::unordered_set<E*> *V){
+        void run_greedy(costfunction::CostFunction<E> &C, std::unordered_set<E*> *V){
             if(V->size() < 1){
                 std::cout << "Ground set is empty!" << std::endl;
                 return;
@@ -62,7 +62,7 @@ template<typename E> class GreedyAlgorithm{
             }
         }
 
-        void run_greedy(costfunction::CostFunction &C){
+        void run_greedy(costfunction::CostFunction<E> &C){
             //  Can only call greedy in this way if it already knows about a non-empty ground set
             if(this->n < 1){
                 std::cout << "No ground set given!" << std::endl;  //should be replaced with throw
@@ -78,7 +78,7 @@ template<typename E> class GreedyAlgorithm{
             }
         };
 
-        void run_greedy(costfunction::CostFunction &C, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction<E> &C, bool cost_benefit){
             if(this->n < 1){
                 std::cout<< "No ground set given!" << std::endl;
                 return;
@@ -87,7 +87,7 @@ template<typename E> class GreedyAlgorithm{
             if(!cost_benefit){
                 // if not asking for cost-benefit alg, run vanilla greedy
                 run_greedy(C);
-            } else if (constraint::Knapsack* k = dynamic_cast<constraint::Knapsack*>(constraint); (k != nullptr)){
+            } else if (constraint::Knapsack<E>* k = dynamic_cast<constraint::Knapsack<E>*>(constraint); (k != nullptr)){
                 // if asking for cost-benefit, check that constraint is a knapsack one
                 // if it is, k becomes a pointer to derived Constraint::Knapsack type
                 int counter=0;
@@ -101,7 +101,7 @@ template<typename E> class GreedyAlgorithm{
             }
         };
 
-        void run_greedy(costfunction::CostFunction &C, std::unordered_set<E*> *V, bool cost_benefit){
+        void run_greedy(costfunction::CostFunction<E> &C, std::unordered_set<E*> *V, bool cost_benefit){
             if(V->size() < 1){
                 std::cout<< "Ground set has size zero!" << std::endl;
                 return;
@@ -118,7 +118,7 @@ template<typename E> class GreedyAlgorithm{
             std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
         };
 
-        void add_constraint(constraint::Constraint *C){
+        void add_constraint(constraint::Constraint<E> *C){
             constraint = C;
         }
 
@@ -129,7 +129,7 @@ template<typename E> class GreedyAlgorithm{
         }
 
     private:
-        void greedy_step(costfunction::CostFunction &F){
+        void greedy_step(costfunction::CostFunction<E> &F){
             std::unordered_set <E*> test_set(curr_set);
             E* best_el;
             double best_marginal_val = -DBL_MAX;
@@ -170,7 +170,7 @@ template<typename E> class GreedyAlgorithm{
             }
         };
 
-        void cost_benefit_greedy_step(costfunction::CostFunction &F, constraint::Knapsack *K, double &curr_budget){
+        void cost_benefit_greedy_step(costfunction::CostFunction<E> &F, constraint::Knapsack<E> *K, double &curr_budget){
             std::unordered_set <E*> test_set(curr_set);
             E* best_el;
             double best_marginal_val = -DBL_MAX;

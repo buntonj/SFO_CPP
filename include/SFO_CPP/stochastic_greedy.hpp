@@ -17,7 +17,7 @@ template<typename E> class StochasticGreedyAlgorithm{
 
     public:
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
-        constraint::Constraint *constraint;
+        constraint::Constraint<E> *constraint;
         std::unordered_set<E*> *ground_set;
         std::vector<E*> ground_set_idxs;  // this maps us from an integer to an element
         std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
@@ -29,7 +29,7 @@ template<typename E> class StochasticGreedyAlgorithm{
 
         StochasticGreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
             this->set_ground_set(this->generate_ground_set(N));
-            this->add_constraint(new constraint::Cardinality(B));
+            this->add_constraint(new constraint::Cardinality<E>(B));
         };
 
         StochasticGreedyAlgorithm(std::unordered_set<E*> *V){
@@ -38,7 +38,7 @@ template<typename E> class StochasticGreedyAlgorithm{
 
         StochasticGreedyAlgorithm(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
-            this->add_constraint(new constraint::Cardinality(B));
+            this->add_constraint(new constraint::Cardinality<E>(B));
         };
 
         std::unordered_set<E*>* generate_ground_set(int &n){
@@ -74,9 +74,9 @@ template<typename E> class StochasticGreedyAlgorithm{
             this->constraint_saturated = false;
         }
 
-        void run_greedy(costfunction::CostFunction &C, double epsilon){
+        void run_greedy(costfunction::CostFunction<E> &C, double epsilon){
             // stochastic greedy is only valid for cardinality constraints, so check
-            if (constraint::Cardinality* k = dynamic_cast<constraint::Cardinality*>(constraint); k != nullptr){
+            if (constraint::Cardinality<E>* k = dynamic_cast<constraint::Cardinality<E>*>(constraint); k != nullptr){
                 this->b = k->budget;
                 this->curr_val = 0;
                 // first, compute how many samples to randomly pull at each step
@@ -104,7 +104,7 @@ template<typename E> class StochasticGreedyAlgorithm{
             std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
         };
 
-        void add_constraint(constraint::Constraint *C){
+        void add_constraint(constraint::Constraint<E> *C){
             constraint = C;
         }
 
@@ -140,7 +140,7 @@ template<typename E> class StochasticGreedyAlgorithm{
             return random_set;
         }
 
-        void stochastic_greedy_step(costfunction::CostFunction &F, std::unordered_set<E*> *sampled_set){
+        void stochastic_greedy_step(costfunction::CostFunction<E> &F, std::unordered_set<E*> *sampled_set){
             std::unordered_set <E*> test_set(curr_set);
             E* best_el;
             double best_marginal_val = -DBL_MAX;
