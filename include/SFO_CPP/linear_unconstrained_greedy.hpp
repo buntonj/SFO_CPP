@@ -1,0 +1,125 @@
+#pragma once
+#include <iostream>
+#include <unordered_set>
+#include <cfloat>
+#include "SFO_core/cost_function.hpp"
+#include "SFO_core/element.hpp"
+#include "SFO_core/constraint.hpp"
+
+template<typename E> class LinearUnconstrainedGreedy{
+    private:
+        double curr_val = 0;  // current value of elements in set
+        bool constraint_saturated = false;
+        int MAXITER = 15;
+
+    public:
+        std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
+        int n = 0;  // holds size of ground set, indexed from 0 to n-1
+        std::unordered_set<E*> top_set;
+        double top_val = 0;
+        std::unordered_set<E*> bottom_set;  // will hold elements selected to be in our set
+        std::unordered_set<E*> curr_set;
+        double bottom_val = 0;
+
+        LinearUnconstrainedGreedy(int &N){
+            this->set_ground_set(generate_ground_set(N));
+        };
+
+        LinearUnconstrainedGreedy(std::unordered_set<E*> *V){
+            this->set_ground_set(V);
+        };
+        
+        std::unordered_set<E*>* generate_ground_set(int &n){
+            std::unordered_set<E*> *V = new std::unordered_set<E*>;
+            int id = 0;
+            double val = 0;
+            for (int i=0; i<n; i++){
+                id++;
+                V->insert(new E(id, val));
+            }
+            return V;
+        }
+
+        void set_ground_set(std::unordered_set<E*> *V){
+            this->ground_set = V;
+            this->n = V->size();
+        }
+
+        void run_greedy(costfunction::CostFunction<E> &C, std::unordered_set<E*> *V){
+            if(V->size() < 1){
+                std::cout << "Ground set is empty!" << std::endl;
+                return;
+            } else{
+                this->set_ground_set(V);
+                this->run_greedy(C);
+            }
+        }
+
+        void run_greedy(costfunction::CostFunction<E> &C){
+            //  Can only call greedy in this way if it already knows about a non-empty ground set
+            if(this->n < 1){
+                std::cout << "No ground set given!" << std::endl;  //should be replaced with throw
+                return;
+            } else{
+                this->top_set = *ground_set;
+                this->top_val = C(top_set);
+                this->bottom_set.clear();
+                this->MAXITER = this->n;
+                int counter=0;
+                for(auto it = ground_set->begin(); it != ground_set->end(); ++it){
+                    counter++;
+                    greedy_step(C, *it);
+                    std::cout<< "Performed LINEAR UNCONSTRAINED greedy algorithm iteration: " << counter << std::endl;
+                    this->curr_set = (top_val > bottom_val) ? top_set : bottom_set;
+                    this->curr_val = std::max(top_val, bottom_val);
+
+                    if (this->top_set == this->bottom_set){
+                        break;
+                    }
+
+                    print_status();
+                }
+            }
+        };
+
+        void print_status(){
+            std::cout << "Current set:";
+            std::cout<< curr_set;
+            std::cout<<"Current val: " << curr_val << std::endl;
+            std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
+        };
+
+        void clear_set(){
+            this->curr_set.clear();
+            this->top_val = 0;
+            this->constraint_saturated = false;
+        }
+
+    private:
+        void greedy_step(costfunction::CostFunction<E> &F, E* el){
+            std::unordered_set <E*> test_set(bottom_set);
+            double bottom_gain, top_gain;
+
+            // note that el is a POINTER to a POINTER to an element in the ground set
+            test_set = bottom_set;
+
+            test_set.insert(el);
+
+            // update marginal value
+            bottom_gain = F(test_set) - bottom_val;
+
+            test_set = top_set;
+            test_set.erase(el);
+            top_gain = F(test_set) - top_val;
+
+            if (bottom_gain >= top_gain){
+                // then add the element to the bottom set
+                bottom_set.insert(el);
+                // update current bottom set value
+                bottom_val = bottom_val + bottom_gain;
+            } else {
+                top_set.erase(el);
+                top_val = top_val + top_gain;
+            }
+        };
+};

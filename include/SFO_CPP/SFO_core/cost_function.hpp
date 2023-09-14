@@ -9,9 +9,27 @@ namespace costfunction{
     template<typename E> class CostFunction{
         // Cost functions are given POINTERS to ELEMENTS, returning an evaluation
         public:
-            virtual ~CostFunction(){};
+            virtual ~CostFunction(){}; // destructor
             virtual double operator()(std::unordered_set<E*> &set) = 0;
             virtual double operator()(E* &el) = 0;
+
+            // marginal gain functions
+            virtual double marginal_gain(E* &el, std::unordered_set<E*> &context){
+            /* Evaluate the marginal gain of E* el when added to context
+            *  call it this way when you don't have the previous value stored.
+            */
+                std::unordered_set<E*> testset(context);
+                testset.insert(el);
+                return this->operator()(testset) - this->operator()(context);
+            }
+            virtual double marginal_gain(E* &el, std::unordered_set<E*> &context, double &curr_val){
+            /* Evaluate the marginal gain of E* el when added to context, which has value curr_val
+            *  Call it this way when current value is stored, this saves extra function evaluations.
+            */
+                std::unordered_set<E*> testset(context);
+                testset.insert(el);
+                return this->operator()(testset) - curr_val;
+            }
     };
 
     template<typename E>class Modular : public CostFunction<E>{

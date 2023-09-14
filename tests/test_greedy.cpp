@@ -6,6 +6,7 @@
 #include "sfo_cpp/lazy_greedy.hpp"
 #include "sfo_cpp/stochastic_greedy.hpp"
 #include "sfo_cpp/lazier_than_lazy_greedy.hpp"
+#include "sfo_cpp/linear_unconstrained_greedy.hpp"
 
 // include the cost function and constraint interfaces
 #include "SFO_CPP/SFO_core/cost_function.hpp"
@@ -26,6 +27,7 @@ int main(){
     LazyGreedy lazygreedy(ground_set);
     StochasticGreedyAlgorithm stochasticgreedy(ground_set);
     LazierThanLazyGreedy lazier_than_lazy_greedy(ground_set);
+    LinearUnconstrainedGreedy linear_unconstrained(ground_set);
     double epsilon = 0.25;  /// parameter needed for stochastic/lazier than lazy algorithms
 
     // define weights for a modular function
@@ -69,6 +71,9 @@ int main(){
     std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
     lazier_than_lazy_greedy.clear_set();
     lazier_than_lazy_greedy.run_greedy(*modular, epsilon);
+    std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
+    linear_unconstrained.clear_set();
+    linear_unconstrained.run_greedy(*modular);
 
     // square root modular (strictly submodular cost, greedy algorithm near-optimal)
     std::cout<< std::endl << "******************SQRT MODULAR COST*****************" << std::endl;
