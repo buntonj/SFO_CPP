@@ -7,7 +7,7 @@
 #include "SFO_core/element.hpp"
 #include "SFO_core/constraint.hpp"
 
-template<typename E> class LinearUnconstrainedGreedy{
+template<typename E> class BidirectionalGreedy{
     private:
         double curr_val = 0;  // current value of elements in set
         int MAXITER = 15;
@@ -22,11 +22,11 @@ template<typename E> class LinearUnconstrainedGreedy{
         double bottom_val = 0;
         std::unordered_set<E*> curr_set;
 
-        LinearUnconstrainedGreedy(int &N){
+        BidirectionalGreedy(int &N){
             this->set_ground_set(generate_ground_set(N));
         };
 
-        LinearUnconstrainedGreedy(std::unordered_set<E*> *V){
+        BidirectionalGreedy(std::unordered_set<E*> *V){
             this->set_ground_set(V);
         };
         

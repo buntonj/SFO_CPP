@@ -89,4 +89,30 @@ namespace costfunction{
                 return std::sqrt(modular_part(el));
             }
     };
+
+    template<typename E> class CenteredSqrtModular: public CostFunction<E>{
+        public:
+            Modular<E> modular_part;
+            double high, bias;
+
+            CenteredSqrtModular(const Modular<E> &m, double b, double h){
+                modular_part = m;
+                high = h;
+                bias = b;
+            }
+
+            CenteredSqrtModular(double b, double h){
+                modular_part = Modular<E>();
+                high = h;
+                bias = b;
+            }
+
+            double operator()(std::unordered_set<E*> &set){
+                return high - std::sqrt(std::abs(modular_part(set)-bias));
+            }
+
+            double operator()(E* &el){
+                return high - std::sqrt(std::abs(modular_part(el)-bias));
+            }
+    };
 }

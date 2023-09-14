@@ -6,7 +6,7 @@
 #include "sfo_cpp/lazy_greedy.hpp"
 #include "sfo_cpp/stochastic_greedy.hpp"
 #include "sfo_cpp/lazier_than_lazy_greedy.hpp"
-#include "sfo_cpp/linear_unconstrained_greedy.hpp"
+#include "sfo_cpp/bidirectional_greedy.hpp"
 
 // include the cost function and constraint interfaces
 #include "SFO_CPP/SFO_core/cost_function.hpp"
@@ -27,7 +27,7 @@ int main(){
     LazyGreedy lazygreedy(ground_set);
     StochasticGreedyAlgorithm stochasticgreedy(ground_set);
     LazierThanLazyGreedy lazier_than_lazy_greedy(ground_set);
-    LinearUnconstrainedGreedy linear_unconstrained(ground_set);
+    BidirectionalGreedy bidirectional_greedy(ground_set);
     double epsilon = 0.25;  /// parameter needed for stochastic/lazier than lazy algorithms
 
     // define weights for a modular function
@@ -40,6 +40,9 @@ int main(){
     costfunction::CostFunction<Element>* cardinality = new costfunction::Modular<Element>;  //cardinality
     costfunction::CostFunction<Element>* modular = new costfunction::Modular<Element>(weights); // modular
     costfunction::CostFunction<Element>* sqrtmodular = new costfunction::SquareRootModular<Element>; // square root modular
+    double bias = double(set_size/2);
+    double high = std::sqrt(set_size-bias);
+    costfunction::CostFunction<Element>* centeredsqrtmodular = new costfunction::CenteredSqrtModular<Element>(bias, high); // square root modular
 
     // then, we build some constraints to add to the problems
     constraint::Constraint<Element>* card = new constraint::Knapsack<Element>(budget); // cardinality at knapsack level
@@ -72,11 +75,11 @@ int main(){
     lazier_than_lazy_greedy.clear_set();
     lazier_than_lazy_greedy.run_greedy(*modular, epsilon);
     std::cout<<"==============BIDIRECTIONAL GREEDY==============" << std::endl;
-    linear_unconstrained.clear_set();
-    linear_unconstrained.run_greedy(*modular);
+    bidirectional_greedy.clear_set();
+    bidirectional_greedy.run_greedy(*modular);
     std::cout<<"==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
-    linear_unconstrained.clear_set();
-    linear_unconstrained.run_randomized_greedy(*modular);
+    bidirectional_greedy.clear_set();
+    bidirectional_greedy.run_randomized_greedy(*modular);
 
     // square root modular (strictly submodular cost, greedy algorithm near-optimal)
     std::cout<< std::endl << "******************SQRT MODULAR COST*****************" << std::endl;
@@ -92,6 +95,12 @@ int main(){
     std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
     lazier_than_lazy_greedy.clear_set();
     lazier_than_lazy_greedy.run_greedy(*sqrtmodular, epsilon);
+    std::cout<<"==============BIDIRECTIONAL GREEDY==============" << std::endl;
+    bidirectional_greedy.clear_set();
+    bidirectional_greedy.run_greedy(*centeredsqrtmodular);
+    std::cout<<"==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
+    bidirectional_greedy.clear_set();
+    bidirectional_greedy.run_randomized_greedy(*centeredsqrtmodular);
 
     // cleanup stack memory
     delete cardinality;
