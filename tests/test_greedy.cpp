@@ -71,9 +71,12 @@ int main(){
     std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
     lazier_than_lazy_greedy.clear_set();
     lazier_than_lazy_greedy.run_greedy(*modular, epsilon);
-    std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
+    std::cout<<"==============BIDIRECTIONAL GREEDY==============" << std::endl;
     linear_unconstrained.clear_set();
     linear_unconstrained.run_greedy(*modular);
+    std::cout<<"==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
+    linear_unconstrained.clear_set();
+    linear_unconstrained.run_randomized_greedy(*modular);
 
     // square root modular (strictly submodular cost, greedy algorithm near-optimal)
     std::cout<< std::endl << "******************SQRT MODULAR COST*****************" << std::endl;
