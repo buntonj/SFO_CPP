@@ -5,9 +5,9 @@
 #include <iostream>
 #include <vector>
 #include <cfloat>
-#include "SFO_core/element.hpp"
-#include "SFO_core/cost_function.hpp"
-#include "SFO_core/constraint.hpp"
+#include "sfo_cpp/SFO_core/element.hpp"
+#include "sfo_cpp/SFO_core/cost_function.hpp"
+#include "sfo_cpp/SFO_core/constraint.hpp"
 
 template<typename E> class LazierThanLazyGreedy{
     private:

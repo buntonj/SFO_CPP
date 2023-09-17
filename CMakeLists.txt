@@ -30,7 +30,7 @@ target_include_directories(
             $<INSTALL_INTERFACE:include>)
 
 # requires C++17 to compile
-target_compile_features(sfo_cpp INTERFACE cxx_std_17)
+target_compile_features(sfo_cpp INTERFACE cxx_std_20)
 
 if(BUILD_SFO_TESTS)
   add_subdirectory(tests)
