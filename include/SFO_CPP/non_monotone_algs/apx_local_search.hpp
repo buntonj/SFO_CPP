@@ -59,6 +59,7 @@ template<typename E> class ApxLocalSearch{
                 return;
             } else{
                 this->set_ground_set(V);
+                this->epsilon = epsilon;
                 this->run_greedy(C);
             }
         };
@@ -68,7 +69,8 @@ template<typename E> class ApxLocalSearch{
                 std::cout<< "No ground set given!" << std::endl;
                 return;
             } else {
-                this->run_greedy(C, this->ground_set, epsilon);
+                this->epsilon = epsilon;
+                this->run_greedy(C);
             }
         };
 
