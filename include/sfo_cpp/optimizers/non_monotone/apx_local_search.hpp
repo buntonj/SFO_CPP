@@ -2,9 +2,9 @@
 #include <iostream>
 #include <unordered_set>
 #include <cfloat>
-#include "sfo_cpp/SFO_core/cost_function.hpp"
-#include "sfo_cpp/SFO_core/element.hpp"
-#include "sfo_cpp/SFO_core/constraint.hpp"
+#include "../../sfo_concepts/element.hpp"
+#include "../../sfo_concepts/cost_function.hpp"
+#include "../../sfo_concepts/constraint.hpp"
 
 template<typename E> class ApxLocalSearch{
     private:
@@ -25,7 +25,7 @@ template<typename E> class ApxLocalSearch{
 
         ApxLocalSearch(int &N, int &B){  // If you give a budget, initialize a budget constraint
             this->set_ground_set(generate_ground_set(N));
-            this->add_constraint(new constraint::Cardinality<E>(B));
+            this->set_constraint(new constraint::Cardinality<E>(B));
         };
 
         ApxLocalSearch(std::unordered_set<E*> *V){
@@ -34,7 +34,7 @@ template<typename E> class ApxLocalSearch{
 
         ApxLocalSearch(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
-            this->add_constraint(new constraint::Cardinality<E>(B));
+            this->set_constraint(new constraint::Cardinality<E>(B));
         };
         
         std::unordered_set<E*>* generate_ground_set(int &n){
@@ -81,7 +81,7 @@ template<typename E> class ApxLocalSearch{
             std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
         };
 
-        void add_constraint(constraint::Constraint<E> *C){
+        void set_constraint(constraint::Constraint<E> *C){
             constraint = C;
         }
 

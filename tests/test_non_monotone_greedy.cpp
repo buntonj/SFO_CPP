@@ -2,14 +2,14 @@
 #include <vector>
 
 // include the algorithms we want
-#include "sfo_cpp/non_monotone_algs/bidirectional_greedy.hpp"
+#include "sfo_cpp/optimizers/non_monotone/bidirectional_greedy.hpp"
 
 // include the cost function and constraint interfaces
-#include "sfo_cpp/SFO_core/cost_function.hpp"
-#include "sfo_cpp/SFO_core/constraint.hpp"
+#include "sfo_cpp/sfo_concepts/cost_function.hpp"
+#include "sfo_cpp/sfo_concepts/constraint.hpp"
 
 // Elements are templated out, include basic "element" class for testing
-#include "sfo_cpp/SFO_core/element.hpp"
+#include "sfo_cpp/sfo_concepts/element.hpp"
 
 
 int main(){
@@ -19,7 +19,7 @@ int main(){
     std::unordered_set<Element*> *ground_set = generate_ground_set(set_size);
 
     // now, let's create some algorithm objects to operate on that ground set
-    BidirectionalGreedy bidirectional_greedy(ground_set);
+    BidirectionalGreedy<Element> bdgreedy;
 
     // define weights for a modular function
     std::unordered_map<Element*, double> weights;
@@ -41,32 +41,45 @@ int main(){
 
     // run the algorithms one after another
     // modular cost function first (greedy algorithm is provably optimal)
+    bdgreedy.set_ground_set(ground_set);
+    bdgreedy.set_randomized(false);
     std::cout<< "Successfully built greedy algorithms." <<std::endl;
+
     std::cout<< std::endl << "****************RUNNING MODULAR COSTS*************" << std::endl;
     std::cout<<"==============BIDIRECTIONAL GREEDY==============" << std::endl;
-    bidirectional_greedy.clear_set();
-    bidirectional_greedy.run_greedy(*modular);
+    bdgreedy.clear_set();
+    bdgreedy.run_greedy();
     std::cout<<"==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
-    bidirectional_greedy.clear_set();
-    bidirectional_greedy.run_randomized_greedy(*modular);
+    bdgreedy.clear_set();
+    bdgreedy.set_randomized(true);
+    bdgreedy.run_greedy();
+
 
     // square root modular (strictly submodular cost, greedy algorithm near-optimal)
     std::cout<< std::endl << "******************SQRT MODULAR COST*****************" << std::endl;
+    bdgreedy.set_cost_function(sqrtmodular);
+
     std::cout<<"==============BIDIRECTIONAL GREEDY==============" << std::endl;
-    bidirectional_greedy.clear_set();
-    bidirectional_greedy.run_greedy(*sqrtmodular);
+    bdgreedy.clear_set();
+    bdgreedy.set_randomized(false);
+    bdgreedy.run_greedy();
     std::cout<<"==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
-    bidirectional_greedy.clear_set();
-    bidirectional_greedy.run_randomized_greedy(*sqrtmodular);
+    bdgreedy.clear_set();
+    bdgreedy.set_randomized(true);
+    bdgreedy.run_greedy();
 
     // square root modular (strictly submodular cost, greedy algorithm near-optimal)
     std::cout<< std::endl << "******************(CENTERED) SQRT MODULAR COST*****************" << std::endl;
+    bdgreedy.set_cost_function(centeredsqrtmodular);
+
     std::cout<<"==============BIDIRECTIONAL GREEDY==============" << std::endl;
-    bidirectional_greedy.clear_set();
-    bidirectional_greedy.run_greedy(*centeredsqrtmodular);
+    bdgreedy.clear_set();
+    bdgreedy.set_randomized(false);
+    bdgreedy.run_greedy();
     std::cout<<"==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
-    bidirectional_greedy.clear_set();
-    bidirectional_greedy.run_randomized_greedy(*centeredsqrtmodular);
+    bdgreedy.clear_set();
+    bdgreedy.set_randomized(true);
+    bdgreedy.run_greedy();
 
     // cleanup stack memory
     delete cardinality;
