@@ -12,73 +12,35 @@ template<typename E> class BidirectionalGreedy{
         double curr_val = 0;  // current value of elements in set
         int MAXITER = 15;
         bool randomized = false;
-
-    public:
-        std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
-        int n = 0;  // holds size of ground set, indexed from 0 to n-1
         std::unordered_set<E*> top_set;
         double top_val = 0;
         std::unordered_set<E*> bottom_set;  // will hold elements selected to be in our set
         double bottom_val = 0;
+
+    public:
+        std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
+        int n = 0;  // holds size of ground set, indexed from 0 to n-1
+        costfunction::CostFunction<E> *cost_function;
         std::unordered_set<E*> curr_set;
-
-        BidirectionalGreedy(int &N){
-            this->set_ground_set(generate_ground_set(N));
-        };
-
-        BidirectionalGreedy(std::unordered_set<E*> *V){
-            this->set_ground_set(V);
-        };
-        
-        std::unordered_set<E*>* generate_ground_set(int &n){
-            std::unordered_set<E*> *V = new std::unordered_set<E*>;
-            int id = 0;
-            double val = 0;
-            for (int i=0; i<n; i++){
-                id++;
-                V->insert(new E(id, val));
-            }
-            return V;
-        };
 
         void set_ground_set(std::unordered_set<E*> *V){
             this->ground_set = V;
             this->n = V->size();
         };
 
-        void run_greedy(costfunction::CostFunction<E> &C, std::unordered_set<E*> *V){
-            if(V->size() < 1){
-                std::cout << "Ground set is empty!" << std::endl;
-                return;
-            } else{
-                this->set_ground_set(V);
-                this->randomized = false;
-                this->run_greedy(C);
-            }
-        };
+        void set_cost_function(costfunction::CostFunction<E> *F){
+            this->cost_function = F;
+        }
 
-        void run_randomized_greedy(costfunction::CostFunction<E> &C, std::unordered_set<E*> *V){
-            if(V->size() < 1){
-                std::cout << "Ground set is empty!" << std::endl;
-                return;
-            } else{
-                this->set_ground_set(V);
-                this->randomized = true;
-                this->run_greedy(C);
-            }
-        };
+        void set_randomized(bool random){
+            this->randomized = random;
+        }
 
-        void run_randomized_greedy(costfunction::CostFunction<E> &C){
-            if(ground_set->size() < 1){
-                std::cout << "Ground set is empty!" << std::endl;
-                return;
-            } else{
-                this->randomized = true;
-                this->run_greedy(C);
-            }
-        };
+        void set_constraint(constraint::Constraint<E> *C){
+            std::cout<<"Bidirectional greedy is only valid for unconstrained problems, ignoring..." << std::endl;
+        }
 
-        void run_greedy(costfunction::CostFunction<E> &C){
+        void run_greedy(){
             //  Can only call greedy in this way if it already knows about a non-empty ground set
             if(this->n < 1){
                 std::cout << "No ground set given!" << std::endl;  //should be replaced with throw
@@ -86,13 +48,13 @@ template<typename E> class BidirectionalGreedy{
             } else{
                 this->top_set = *ground_set;
                 this->bottom_set.clear();
-                this->top_val = C(top_set);
+                this->top_val = cost_function->operator()(top_set);
                 this->bottom_val = 0;
                 this->MAXITER = this->n;
                 int counter=0;
                 for(auto it = ground_set->begin(); it != ground_set->end(); ++it){
                     counter++;
-                    greedy_step(C, *it);
+                    greedy_step(*it);
                     if(this->randomized){
                         std::cout<< "Performed RANDOMIZED BIDIRECTIONAL greedy algorithm iteration: " << counter << std::endl;
                     } else {
@@ -124,18 +86,18 @@ template<typename E> class BidirectionalGreedy{
         };
 
     private:
-        void greedy_step(costfunction::CostFunction<E> &F, E* el){
+        void greedy_step(E* el){
             std::unordered_set <E*> test_set(bottom_set);
             double bottom_gain, top_gain;
 
             test_set = bottom_set;
 
             test_set.insert(el);
-            bottom_gain = F(test_set) - bottom_val;
+            bottom_gain = cost_function->operator()(test_set) - bottom_val;
 
             test_set = top_set;
             test_set.erase(el);
-            top_gain = F(test_set) - top_val;
+            top_gain = cost_function->operator()(test_set) - top_val;
             
             if (this->randomized){
                 // randomized version

@@ -2,7 +2,7 @@
 #include <vector>
 
 // include the algorithms we want
-#include "sfo_cpp/optimizers/monotone/vanilla_greedyV2.hpp"
+#include "sfo_cpp/optimizers/monotone/vanilla_greedy.hpp"
 #include "sfo_cpp/optimizers/monotone/lazy_greedy.hpp"
 #include "sfo_cpp/optimizers/monotone/stochastic_greedy.hpp"
 #include "sfo_cpp/optimizers/monotone/lazier_than_lazy_greedy.hpp"
@@ -23,11 +23,10 @@ int main(){
 
     // now, let's create some algorithm objects to operate on that ground set
     GreedyAlgorithm<Element> greedy;
-    greedy.set_ground_set(ground_set);
-    LazyGreedy lazygreedy(ground_set);
-    StochasticGreedyAlgorithm stochasticgreedy(ground_set);
-    LazierThanLazyGreedy lazier_than_lazy_greedy(ground_set);
-    double epsilon = 0.25;  /// parameter needed for stochastic/lazier than lazy algorithms
+    LazyGreedy<Element> lazygreedy;
+    StochasticGreedyAlgorithm<Element> stochasticgreedy;
+    LazierThanLazyGreedy<Element> ltlgreedy;
+    double epsilon = 0.05;  /// parameter needed for stochastic/lazier than lazy algorithms
 
     // define weights for a modular function
     std::unordered_map<Element*, double> weights;
@@ -43,12 +42,25 @@ int main(){
     // then, we build some constraints to add to the problems
     constraint::Constraint<Element>* card = new constraint::Knapsack<Element>(budget); // cardinality at knapsack level
     constraint::Constraint<Element>* crd = new constraint::Cardinality<Element>(budget);  // cardinality as subclass
-    
-    // add cardinality constraints to the algorithm objects
-    greedy.set_constraint(card);
+
+    // New simpler interface
+    // slightly more verbose but WAY more clear what is happening
+    // "CVX-like"
+    greedy.set_ground_set(ground_set);
+    greedy.set_constraint(crd);
+    greedy.set_cost_benefit(false);
+
+    lazygreedy.set_ground_set(ground_set);
     lazygreedy.set_constraint(crd);
+    lazygreedy.set_cost_benefit(false);
+
+    stochasticgreedy.set_ground_set(ground_set);
     stochasticgreedy.set_constraint(crd);
-    lazier_than_lazy_greedy.set_constraint(crd);
+    stochasticgreedy.set_epsilon(epsilon);
+
+    ltlgreedy.set_ground_set(ground_set);
+    ltlgreedy.set_constraint(crd);
+    ltlgreedy.set_epsilon(epsilon);
 
     // run the algorithms one after another
     // modular cost function first (greedy algorithm is provably optimal)
@@ -62,16 +74,20 @@ int main(){
     greedy.set_cost_benefit(true);
     greedy.run_greedy();
     std::cout<<"==============LAZY GREEDY==============" << std::endl;
-    lazygreedy.run_greedy(*modular);
+    lazygreedy.set_cost_function(modular);
+    lazygreedy.run_greedy();
     std::cout<<"==============LAZY CB GREEDY==============" << std::endl;
     lazygreedy.clear_set();
-    lazygreedy.run_greedy(*modular, true);
+    lazygreedy.set_cost_benefit(true);
+    lazygreedy.run_greedy();
     std::cout<<"==============STOCHASTIC GREEDY==============" << std::endl;
     stochasticgreedy.clear_set();
-    stochasticgreedy.run_greedy(*modular, epsilon);
+    stochasticgreedy.set_cost_function(modular);
+    stochasticgreedy.run_greedy();
     std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
-    lazier_than_lazy_greedy.clear_set();
-    lazier_than_lazy_greedy.run_greedy(*modular, epsilon);
+    ltlgreedy.clear_set();
+    ltlgreedy.set_cost_function(modular);
+    ltlgreedy.run_greedy();
 
     // square root modular (strictly submodular cost, greedy algorithm near-optimal)
     std::cout<< std::endl << "******************SQRT MODULAR COST*****************" << std::endl;
@@ -82,13 +98,17 @@ int main(){
     greedy.run_greedy();
     std::cout<<"==============LAZY GREEDY==============" << std::endl;
     lazygreedy.clear_set();
-    lazygreedy.run_greedy(*sqrtmodular);
+    lazygreedy.set_cost_function(sqrtmodular);
+    lazygreedy.set_cost_benefit(false);
+    lazygreedy.run_greedy();
     std::cout<<"==============STOCHASTIC GREEDY==============" << std::endl;
     stochasticgreedy.clear_set();
-    stochasticgreedy.run_greedy(*sqrtmodular, epsilon);
+    stochasticgreedy.set_cost_function(sqrtmodular);
+    stochasticgreedy.run_greedy();
     std::cout<<"==============STOCHASTIC LAZY GREEDY==============" << std::endl;
-    lazier_than_lazy_greedy.clear_set();
-    lazier_than_lazy_greedy.run_greedy(*sqrtmodular, epsilon);
+    ltlgreedy.clear_set();
+    ltlgreedy.set_cost_function(sqrtmodular);
+    ltlgreedy.run_greedy();
 
     // cleanup stack memory
     delete cardinality;

@@ -14,46 +14,16 @@ template<typename E> class StochasticGreedyAlgorithm{
         int b;
         bool constraint_saturated = false;
         int MAXITER = 15;
+        std::vector<E*> ground_set_idxs;  // this maps us from an integer to an element
+        std::unordered_set<E*> to_erase;  // used to discard and no longer randomly sample elements
 
     public:
+        std::unordered_set<E*> *ground_set;
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         constraint::Constraint<E> *constraint;
-        std::unordered_set<E*> *ground_set;
-        std::vector<E*> ground_set_idxs;  // this maps us from an integer to an element
+        costfunction::CostFunction<E> *cost_function;
         std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
-        std::unordered_set<E*> to_erase;
-
-        StochasticGreedyAlgorithm(int &N){
-            this->set_ground_set(this->generate_ground_set(N));
-        };
-
-        StochasticGreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
-            this->set_ground_set(this->generate_ground_set(N));
-            this->set_constraint(new constraint::Cardinality<E>(B));
-        };
-
-        StochasticGreedyAlgorithm(std::unordered_set<E*> *V){
-            this->set_ground_set(V);
-        };
-
-        StochasticGreedyAlgorithm(std::unordered_set<E*> *V, int &B){
-            this->set_ground_set(V);
-            this->set_constraint(new constraint::Cardinality<E>(B));
-        };
-
-        std::unordered_set<E*>* generate_ground_set(int &n){
-            std::unordered_set<E*> *V = new std::unordered_set<E*>;
-            E* el;
-            int id = 0;
-            for (int i=0; i<n; i++){
-                id++;
-                el = new E;
-                el->id = id;
-                el->value = 0;
-                V->insert(el);
-            }
-            return V;
-        }
+        double epsilon = 0;
 
         void set_ground_set(std::unordered_set<E*> *V){
             this->ground_set = V;
@@ -61,11 +31,16 @@ template<typename E> class StochasticGreedyAlgorithm{
             this->index_ground_set();
         }
 
-        void index_ground_set(){
-            int idx = 0;
-            for (auto el=ground_set->begin(); el != ground_set->end(); ++el, ++idx){
-                ground_set_idxs.push_back(*el);
-            }
+        void set_constraint(constraint::Constraint<E> *C){
+            this->constraint = C;
+        }
+
+        void set_cost_function(costfunction::CostFunction<E> *F){
+            this->cost_function = F;
+        }
+
+        void set_epsilon(double epsilon){
+            this->epsilon = epsilon;
         }
 
         void clear_set(){
@@ -74,20 +49,24 @@ template<typename E> class StochasticGreedyAlgorithm{
             this->constraint_saturated = false;
         }
 
-        void run_greedy(costfunction::CostFunction<E> &C, double epsilon){
+        void run_greedy(){
+            if (epsilon <= 0){
+                std::cout<< "Epsilon value not set/valid, using default 0.25..." <<std::endl;
+                this->epsilon = 0.25;
+            }
             // stochastic greedy is only valid for cardinality constraints, so check
             if (constraint::Cardinality<E>* k = dynamic_cast<constraint::Cardinality<E>*>(constraint); k != nullptr){
                 this->b = k->budget;
                 this->curr_val = 0;
                 // first, compute how many samples to randomly pull at each step
-                int sample_size = random_set_size(epsilon, n, double(b));
+                int sample_size = compute_random_set_size();
                 std::unordered_set<E*> *sample_set = new std::unordered_set<E*>;
                 int counter=0;
                 while (!constraint_saturated && counter < MAXITER){
                     counter++;
                     *sample_set = sample_ground_set(sample_size);
                     std::cout<<"Sampled set: "<< *sample_set <<std::endl;
-                    stochastic_greedy_step(C, sample_set);
+                    stochastic_greedy_step(sample_set);
                     sample_size = std::min(sample_size, int(ground_set_idxs.size()));
                     std::cout<< "Performed greedy algorithm iteration: " << counter << std::endl;
                     print_status();
@@ -104,13 +83,16 @@ template<typename E> class StochasticGreedyAlgorithm{
             std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
         };
 
-        void set_constraint(constraint::Constraint<E> *C){
-            constraint = C;
+    private:
+        int compute_random_set_size(){
+            return int(std::min((double(this->n)/this->b)*log(1.0/this->epsilon), double(this->n)));
         }
 
-    private:
-        int random_set_size(double epsilon, int ground_set_size, double budget){
-            return int(std::min((double(ground_set_size)/budget)*log(1.0/epsilon), double(ground_set_size)));
+        void index_ground_set(){
+            int idx = 0;
+            for (auto el=ground_set->begin(); el != ground_set->end(); ++el, ++idx){
+                ground_set_idxs.push_back(*el);
+            }
         }
 
         std::unordered_set<E*> sample_ground_set(int &set_size){
@@ -140,7 +122,7 @@ template<typename E> class StochasticGreedyAlgorithm{
             return random_set;
         }
 
-        void stochastic_greedy_step(costfunction::CostFunction<E> &F, std::unordered_set<E*> *sampled_set){
+        void stochastic_greedy_step(std::unordered_set<E*> *sampled_set){
             std::unordered_set <E*> test_set(curr_set);
             E* best_el;
             double best_marginal_val = -DBL_MAX;
@@ -167,7 +149,7 @@ template<typename E> class StochasticGreedyAlgorithm{
                 }
 
                 // update marginal value
-                candidate_marginal_val = F(test_set) - curr_val;
+                candidate_marginal_val = cost_function->operator()(test_set) - curr_val;
 
                 // keep running track of highest marginal value element
                 if (candidate_marginal_val > best_marginal_val){
