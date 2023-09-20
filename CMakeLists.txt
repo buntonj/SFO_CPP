@@ -29,7 +29,7 @@ target_include_directories(
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:include>)
 
-# requires C++17 to compile
+# requires C++20 to compile
 target_compile_features(sfo_cpp INTERFACE cxx_std_20)
 
 if(BUILD_SFO_TESTS)

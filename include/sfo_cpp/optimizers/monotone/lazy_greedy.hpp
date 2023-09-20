@@ -4,9 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <cfloat>
-#include "sfo_cpp/SFO_core/element.hpp"
-#include "sfo_cpp/SFO_core/cost_function.hpp"
-#include "sfo_cpp/SFO_core/constraint.hpp"
+#include "../../sfo_concepts/element.hpp"
+#include "../../sfo_concepts/cost_function.hpp"
+#include "../../sfo_concepts/constraint.hpp"
 
 
 template<typename E> class LazyGreedy{

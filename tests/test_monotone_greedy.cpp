@@ -2,17 +2,17 @@
 #include <vector>
 
 // include the algorithms we want
-#include "sfo_cpp/monotone_algs/vanilla_greedy.hpp"
-#include "sfo_cpp/monotone_algs/lazy_greedy.hpp"
-#include "sfo_cpp/monotone_algs/stochastic_greedy.hpp"
-#include "sfo_cpp/monotone_algs/lazier_than_lazy_greedy.hpp"
+#include "sfo_cpp/optimizers/monotone/vanilla_greedy.hpp"
+#include "sfo_cpp/optimizers/monotone/lazy_greedy.hpp"
+#include "sfo_cpp/optimizers/monotone/stochastic_greedy.hpp"
+#include "sfo_cpp/optimizers/monotone/lazier_than_lazy_greedy.hpp"
 
 // include the cost function and constraint interfaces
-#include "sfo_cpp/SFO_core/cost_function.hpp"
-#include "sfo_cpp/SFO_core/constraint.hpp"
+#include "sfo_cpp/sfo_concepts/cost_function.hpp"
+#include "sfo_cpp/sfo_concepts/constraint.hpp"
 
 // Elements are templated out, include basic "element" class for testing
-#include "sfo_cpp/SFO_core/element.hpp"
+#include "sfo_cpp/sfo_concepts/element.hpp"
 
 
 int main(){
