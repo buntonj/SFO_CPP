@@ -2,7 +2,7 @@
 #include <vector>
 
 // include the algorithms we want
-#include "sfo_cpp/optimizers/monotone/vanilla_greedy.hpp"
+#include "sfo_cpp/optimizers/monotone/vanilla_greedyV2.hpp"
 #include "sfo_cpp/optimizers/monotone/lazy_greedy.hpp"
 #include "sfo_cpp/optimizers/monotone/stochastic_greedy.hpp"
 #include "sfo_cpp/optimizers/monotone/lazier_than_lazy_greedy.hpp"
@@ -22,7 +22,8 @@ int main(){
     std::unordered_set<Element*> *ground_set = generate_ground_set(set_size);
 
     // now, let's create some algorithm objects to operate on that ground set
-    GreedyAlgorithm<Element> greedy(ground_set);
+    GreedyAlgorithm<Element> greedy;
+    greedy.set_ground_set(ground_set);
     LazyGreedy lazygreedy(ground_set);
     StochasticGreedyAlgorithm stochasticgreedy(ground_set);
     LazierThanLazyGreedy lazier_than_lazy_greedy(ground_set);
@@ -44,20 +45,22 @@ int main(){
     constraint::Constraint<Element>* crd = new constraint::Cardinality<Element>(budget);  // cardinality as subclass
     
     // add cardinality constraints to the algorithm objects
-    greedy.add_constraint(card);
-    lazygreedy.add_constraint(crd);
-    stochasticgreedy.add_constraint(crd);
-    lazier_than_lazy_greedy.add_constraint(crd);
+    greedy.set_constraint(card);
+    lazygreedy.set_constraint(crd);
+    stochasticgreedy.set_constraint(crd);
+    lazier_than_lazy_greedy.set_constraint(crd);
 
     // run the algorithms one after another
     // modular cost function first (greedy algorithm is provably optimal)
     std::cout<< "Successfully built greedy algorithms." <<std::endl;
     std::cout<< std::endl << "****************RUNNING MODULAR COSTS*************" << std::endl;
     std::cout<<"==============VANILLA GREEDY==============" << std::endl;
-    greedy.run_greedy(*modular);
+    greedy.set_cost_function(modular);
+    greedy.run_greedy();
     std::cout<<"==============VANILLA CB GREEDY==============" << std::endl;
     greedy.clear_set();
-    greedy.run_greedy(*modular, true);
+    greedy.set_cost_benefit(true);
+    greedy.run_greedy();
     std::cout<<"==============LAZY GREEDY==============" << std::endl;
     lazygreedy.run_greedy(*modular);
     std::cout<<"==============LAZY CB GREEDY==============" << std::endl;
@@ -74,7 +77,9 @@ int main(){
     std::cout<< std::endl << "******************SQRT MODULAR COST*****************" << std::endl;
     std::cout<<"==============VANILLA GREEDY==============" << std::endl;
     greedy.clear_set();
-    greedy.run_greedy(*sqrtmodular);
+    greedy.set_cost_function(sqrtmodular);
+    greedy.set_cost_benefit(false);
+    greedy.run_greedy();
     std::cout<<"==============LAZY GREEDY==============" << std::endl;
     lazygreedy.clear_set();
     lazygreedy.run_greedy(*sqrtmodular);

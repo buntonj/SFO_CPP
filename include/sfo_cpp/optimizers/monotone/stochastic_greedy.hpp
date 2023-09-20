@@ -29,7 +29,7 @@ template<typename E> class StochasticGreedyAlgorithm{
 
         StochasticGreedyAlgorithm(int &N, int &B){  // If you give a budget, initialize a budget constraint
             this->set_ground_set(this->generate_ground_set(N));
-            this->add_constraint(new constraint::Cardinality<E>(B));
+            this->set_constraint(new constraint::Cardinality<E>(B));
         };
 
         StochasticGreedyAlgorithm(std::unordered_set<E*> *V){
@@ -38,7 +38,7 @@ template<typename E> class StochasticGreedyAlgorithm{
 
         StochasticGreedyAlgorithm(std::unordered_set<E*> *V, int &B){
             this->set_ground_set(V);
-            this->add_constraint(new constraint::Cardinality<E>(B));
+            this->set_constraint(new constraint::Cardinality<E>(B));
         };
 
         std::unordered_set<E*>* generate_ground_set(int &n){
@@ -104,7 +104,7 @@ template<typename E> class StochasticGreedyAlgorithm{
             std::cout<<"Constraint saturated? " << constraint_saturated << std::endl;
         };
 
-        void add_constraint(constraint::Constraint<E> *C){
+        void set_constraint(constraint::Constraint<E> *C){
             constraint = C;
         }
 
