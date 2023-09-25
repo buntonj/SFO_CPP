@@ -32,7 +32,7 @@ Once installed, basic usage follows four simple steps:
 
 1) Define a  `std::unordered_set` of "ground set" elements to summarize.
 2) Import and create the appropriate `GreedyAlgorithm` object from this library.
-3) Give the `GreedyAlgorithm` object a reference to the ground set and `Constraint` it must satisfy (if desired).
+3) Give the `GreedyAlgorithm` object a reference to the ground set and `Constraint`s it must satisfy (if desired).
 4) Call `GreedyAlgorithm.run_greedy(CostFunction)` on a `sfo_cpp::CostFunction` abstract base class.
 
 The entire library is templated via some `typename E`, where  the instatiation of `E` defines the C++ objects that the algorithms will be summarizing.  The library accomplishes this by populating a `std::unordered_set<E*>` of _pointers_ to elements in $V$ rather than directly copying elements around.

@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <unordered_set>
+#include <vector>
 #include <cfloat>
 #include "../../sfo_concepts/element.hpp"
 #include "../../sfo_concepts/cost_function.hpp"
@@ -12,6 +13,7 @@ template<typename E> class ApxLocalSearch{
         bool constraint_saturated = false;
         int MAXITER = 15;
         double epsilon = 0;
+        std::unordered_set<E*> curr_ground_set;
 
     public:
         std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
@@ -70,7 +72,7 @@ template<typename E> class ApxLocalSearch{
             }
 
             // check if the constraint is compatible--cannot be knapsack
-            if(constraint::Knapsack<E>* k = dynamic_cast<constraint::Knapsack<E>*>(constraint); k != nullptr){
+            if(constraint::Knapsack<E>* k = find_knapsack(); k != nullptr){
                 std::cout<<"Constraint is a knapsack, apx local search is only valid with matroids."
                 return;
             }
@@ -80,13 +82,21 @@ template<typename E> class ApxLocalSearch{
                 this->epsilon = 0.25;
             }
 
-            for(int i = 0; i < this->num_constraints; i++){
-                // ththis is a comment!
-                // this is another comment!
-                //code code codenn
+            curr_ground_set = *ground_set;  // initialize the ground set
+            std::unordered_set<E*> candidate;
+            double value = -DBL_MAX;
+            double test_value;
+            for(int i = 0; i < constraint_set.size(); i++){
+                // for each constraint, run a local search, save values
+                candidate = local_search_procedure();
+                test_value = cost_function->operator()(candidates[i]);
+
+                // check for new maximum
+                if(test_value > value){
+                    value = test_value;
+                    curr_set = candidate;
+                }
             }
-            int counter=0;
-            // details of greedy algorithm here
         }
 
         void print_status(){
@@ -97,6 +107,30 @@ template<typename E> class ApxLocalSearch{
         };
 
     private:
+        void local_search_procedure(){
+            double curr_val = -DBL_MAX;
+            double test_val;
+            std::unordered_set<E*> test_set;
+            E* test_el;
+
+            // find max value singleton element
+            for(auto it = curr_ground_set.begin(); it != curr_ground_set.end(); ++it){
+                if(this->check_constraints(*it)){
+                    // if element is feasible, compute its value
+                    test_val = cost_function->operator()(*it);
+
+                    // save it if it is better than current best
+                    if(test_val > curr_val){
+                        test_el = *it;
+                        curr_val = test_val;
+                    }
+                }
+            }
+
+            // track marginal_delete, marginal_exchange in priority queues?
+
+        }
+
         void greedy_step(){
             std::unordered_set <E*> test_set(curr_set);
             E* best_el;
@@ -137,4 +171,18 @@ template<typename E> class ApxLocalSearch{
                 constraint_saturated = constraint->is_saturated(curr_set);  // check if constraint is now saturated
             }
         };
+
+        constraint::Knapsack<E>* find_single_knapsack(){
+            constraint::Knapsack<E>* knapsack_ptr;
+            for (auto it=constraint_set.begin(); it != constraint_set.end(); ++it){
+                // iterate over constraints in set, looking for one that can be cast to knapsack
+                knapsack_ptr = dynamic_cast<constraint::Knapsack<E>*>(*it);
+                if (knapsack_ptr != nullptr){
+                    // if we find one, return it (just the first one found)
+                    return knapsack_ptr;
+                }
+            }
+            // if we didn't find one, then return nullptr
+            return nullptr;
+        }
 };
