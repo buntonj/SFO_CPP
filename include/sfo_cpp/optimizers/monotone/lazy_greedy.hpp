@@ -19,7 +19,7 @@ template<typename E> class LazyGreedy{
     public:
         std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
-        constraint::Constraint<E> *constraint;
+        std::unordered_set<constraint::Constraint<E>*> constraint_set;
         costfunction::CostFunction<E> *cost_function;
         bool cost_benefit = false;
         std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
@@ -29,8 +29,32 @@ template<typename E> class LazyGreedy{
             this->n = V->size();
         }
         
-        void set_constraint(constraint::Constraint<E> *C){
-            this->constraint = C;
+        void add_constraint(constraint::Constraint<E> *C){
+            this->constraint_set.insert(C);
+        }
+
+        void remove_constraint(constraint::Constraint<E> *C){
+            this->constraint_set.erase(C);
+        }
+
+        bool check_constraints(std::unordered_set<E*> set){
+            for(auto iter = constraint_set.begin(); iter != constraint_set.end(); ++iter){
+                if(! ((*iter)->test_membership(set))){
+                    // if any constraint is not satisfied, then intersection of them is not
+                    return false;
+                }
+            }
+            return true;  //if all constraints were satisfied, then return true
+        }
+
+        bool check_saturated(std::unordered_set<E*> set){
+            for(auto iter = constraint_set.begin(); iter != constraint_set.end(); ++iter){
+                if((*iter)->is_saturated(set)){
+                    // if any constraint is saturated, then so is intersection
+                    return true;
+                }
+            }
+            return false;  // if no constraints were saturated, then return true
         }
 
         void set_cost_function(costfunction::CostFunction<E> *F){
@@ -66,7 +90,7 @@ template<typename E> class LazyGreedy{
                     std::cout<< "Performed LAZY GREEDY algorithm iteration: " << counter << std::endl;
                     print_status();
                 }
-            } else if(constraint::Knapsack<E>*K = dynamic_cast<constraint::Knapsack<E>*>(constraint); K != nullptr){
+            } else if(constraint::Knapsack<E>*K = find_single_knapsack(); K != nullptr){
                 int counter = 1;
                 double budget = 0;
                 cost_benefit_first_iteration(K, budget);  // initializes marginals in first greedy iteration
@@ -108,7 +132,7 @@ template<typename E> class LazyGreedy{
                 test_set.insert(*el);
 
                 // if test set violates constraint, skip it
-                if(!constraint->test_membership(test_set)){
+                if(!this->check_constraints(test_set)){
                     continue;
                 }
 
@@ -128,7 +152,7 @@ template<typename E> class LazyGreedy{
                     curr_set.insert(candidate.first);
                     curr_val = curr_val + candidate.second;
                     marginals.pop();
-                    constraint_saturated = constraint->is_saturated(curr_set);
+                    constraint_saturated = this->check_saturated(curr_set);
                 } else {
                     // if no element provided positive gain we are done
                     constraint_saturated = true;
@@ -156,7 +180,7 @@ template<typename E> class LazyGreedy{
 
                 test_set.insert(*el);
                 
-                if(!constraint->test_membership(test_set)){
+                if(!this->check_constraints(test_set)){
                     continue;
                 }
                 
@@ -174,7 +198,7 @@ template<typename E> class LazyGreedy{
                 if (auto best = marginals.top(); best.second > 0){
                     // check that its added value is positive
                     curr_set.insert(best.first);  // add it to set
-                    constraint_saturated = constraint->is_saturated(curr_set);  // update constraint saturation
+                    constraint_saturated = this->check_saturated(curr_set);  // update constraint saturation
                     curr_val = curr_val + pure_vals[best.first]; // update current value
                     curr_budget = curr_budget + pure_knaps[best.first];
                     marginals.pop(); // pop element from queue
@@ -200,7 +224,7 @@ template<typename E> class LazyGreedy{
                 candidate.first = marginals.top().first;
                 test_set.insert(candidate.first);  // add it to testing set
 
-                if (!constraint->test_membership(test_set)){
+                if (!this->check_constraints(test_set)){
                     marginals.pop();
                     continue;  // leave element out from now on
                 }
@@ -223,7 +247,7 @@ template<typename E> class LazyGreedy{
                     curr_set.insert(best.first);
                     curr_val = curr_val + best.second;
                     marginals.pop();
-                    constraint_saturated = constraint->is_saturated(curr_set); // allows for early stop detection
+                    constraint_saturated = this->check_saturated(curr_set); // allows for early stop detection
                 } else {
                     constraint_saturated = true;
                 }
@@ -248,7 +272,7 @@ template<typename E> class LazyGreedy{
 
                 marginals.pop();
 
-                if (!constraint->test_membership(test_set)){
+                if (!this->check_constraints(test_set)){
                     continue;  // leave element out from now on
                 }
 
@@ -273,7 +297,7 @@ template<typename E> class LazyGreedy{
                     curr_val = curr_val + pure_vals[best.first];
                     curr_budget = curr_budget + pure_knaps[best.first];
                     marginals.pop();
-                    constraint_saturated = constraint->is_saturated(curr_set); // allows for early stop detection
+                    constraint_saturated = this->check_saturated(curr_set); // allows for early stop detection
                 } else {
                     constraint_saturated = true;
                 }
@@ -285,5 +309,19 @@ template<typename E> class LazyGreedy{
         void clear_marginals(){
             LazyGreedyQueue<E> empty;
             std::swap(marginals, empty);
+        }
+
+        constraint::Knapsack<E>* find_single_knapsack(){
+            constraint::Knapsack<E>* knapsack_ptr;
+            for (auto it=constraint_set.begin(); it != constraint_set.end(); ++it){
+                // iterate over constraints in set, looking for one that can be cast to knapsack
+                knapsack_ptr = dynamic_cast<constraint::Knapsack<E>*>(*it);
+                if (knapsack_ptr != nullptr){
+                    // if we find one, return it (just the first one found)
+                    return knapsack_ptr;
+                }
+            }
+            // if we didn't find one, then return nullptr
+            return nullptr;
         }
 };

@@ -36,7 +36,7 @@ template<typename E> class BidirectionalGreedy{
             this->randomized = random;
         }
 
-        void set_constraint(constraint::Constraint<E> *C){
+        void add_constraint(constraint::Constraint<E> *C){
             std::cout<<"Bidirectional greedy is only valid for unconstrained problems, ignoring..." << std::endl;
         }
 

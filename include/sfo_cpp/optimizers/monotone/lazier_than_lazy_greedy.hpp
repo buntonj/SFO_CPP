@@ -21,7 +21,7 @@ template<typename E> class LazierThanLazyGreedy{
     public:
         std::unordered_set<E*> *ground_set;
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
-        constraint::Constraint<E> *constraint;
+        std::unordered_set<constraint::Constraint<E>*> constraint_set;
         costfunction::CostFunction<E> *cost_function;
         std::unordered_set<E*> curr_set;  // will hold elements selected to be in our set
         double epsilon = 0;
@@ -32,8 +32,36 @@ template<typename E> class LazierThanLazyGreedy{
             this->index_ground_set();
         }
 
-        void set_constraint(constraint::Constraint<E> *C){
-            this->constraint = C;
+        void add_constraint(constraint::Constraint<E> *C){
+            if(constraint::Cardinality<E>* k = dynamic_cast<constraint::Cardinality<E>*>(C); k != nullptr){
+                this->constraint_set.insert(C);
+            } else {
+                std::cout<<"Stochastic greedy is only valid with cardinality constraints." <<std::endl;
+            }
+        }
+
+        void remove_constraint(constraint::Constraint<E> *C){
+            this->constraint_set.erase(C);
+        }
+
+        bool check_constraints(std::unordered_set<E*> set){
+            for(auto iter = constraint_set.begin(); iter != constraint_set.end(); ++iter){
+                if(! ((*iter)->test_membership(set))){
+                    // if any constraint is not satisfied, then intersection of them is not
+                    return false;
+                }
+            }
+            return true;  //if all constraints were satisfied, then return true
+        }
+
+        bool check_saturated(std::unordered_set<E*> set){
+            for(auto iter = constraint_set.begin(); iter != constraint_set.end(); ++iter){
+                if((*iter)->is_saturated(set)){
+                    // if any constraint is saturated, then so is intersection
+                    return true;
+                }
+            }
+            return false;  // if no constraints were saturated, then return true
         }
 
         void set_cost_function(costfunction::CostFunction<E> *F){
@@ -61,7 +89,7 @@ template<typename E> class LazierThanLazyGreedy{
                 std::cout<< "Epsilon is not set/valid, using default value of 0.25..." << std::endl;
                 this->epsilon = 0.25;
             }
-            if (constraint::Cardinality<E>* k = dynamic_cast<constraint::Cardinality<E>*>(constraint); k != nullptr){
+            if (constraint::Cardinality<E>* k = find_single_cardinality(); k != nullptr){
                 this->b = k->budget;
                 this->curr_val = 0;
                 // first, compute how many samples to randomly pull at each step
@@ -168,7 +196,7 @@ template<typename E> class LazierThanLazyGreedy{
                 candidate.first = sampled_marginals.top().first;
                 test_set.insert(candidate.first);  // add it to testing set
 
-                if (!constraint->test_membership(test_set)){
+                if (!this->check_constraints(test_set)){
                     sampled_marginals.pop();
                     marginals.erase(candidate.first);  // leave that element out from now on
                     continue;
@@ -192,7 +220,7 @@ template<typename E> class LazierThanLazyGreedy{
                     curr_set.insert(best.first);
                     curr_val = curr_val + best.second;
                     sampled_marginals.pop();
-                    constraint_saturated = constraint->is_saturated(curr_set); // allows for early stop detection
+                    constraint_saturated = this->check_saturated(curr_set); // allows for early stop detection
                 } else {
                     if(marginals.empty()){
                         constraint_saturated = true;
@@ -205,4 +233,18 @@ template<typename E> class LazierThanLazyGreedy{
                 }
             }
         };
+
+        constraint::Cardinality<E>* find_single_cardinality(){
+            constraint::Cardinality<E>* cardinality_ptr;
+            for (auto it=constraint_set.begin(); it != constraint_set.end(); ++it){
+                // iterate over constraints in set, looking for one that can be cast to knapsack
+                cardinality_ptr = dynamic_cast<constraint::Cardinality<E>*>(*it);
+                if (cardinality_ptr != nullptr){
+                    // if we find the only one, return it
+                    return cardinality_ptr;
+                }
+            }
+            // if we didn't find one unique constraint, then return nullptr
+            return nullptr;
+        }
 };

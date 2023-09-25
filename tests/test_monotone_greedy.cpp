@@ -47,19 +47,19 @@ int main(){
     // slightly more verbose but WAY more clear what is happening
     // "CVX-like"
     greedy.set_ground_set(ground_set);
-    greedy.set_constraint(crd);
+    greedy.add_constraint(crd);
     greedy.set_cost_benefit(false);
 
     lazygreedy.set_ground_set(ground_set);
-    lazygreedy.set_constraint(crd);
+    lazygreedy.add_constraint(crd);
     lazygreedy.set_cost_benefit(false);
 
     stochasticgreedy.set_ground_set(ground_set);
-    stochasticgreedy.set_constraint(crd);
+    stochasticgreedy.add_constraint(crd);
     stochasticgreedy.set_epsilon(epsilon);
 
     ltlgreedy.set_ground_set(ground_set);
-    ltlgreedy.set_constraint(crd);
+    ltlgreedy.add_constraint(crd);
     ltlgreedy.set_epsilon(epsilon);
 
     // run the algorithms one after another
