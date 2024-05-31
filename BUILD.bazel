@@ -1,0 +1,16 @@
+cc_library(
+    name = "sfo_cpp",
+    hdrs= glob(["include/**/*.hpp"]),
+    includes = ["include"],
+    visibility = [
+        "//visibility:public",
+    ]
+)
+
+cc_binary(
+    name = "binary",
+    srcs = glob(["test/*.cpp"]),
+    deps = [
+        ":sfo_cpp"
+    ],
+)
