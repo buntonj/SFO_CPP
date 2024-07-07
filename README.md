@@ -24,7 +24,7 @@ For such functions, greedy algorithms are both efficient and provably near-optim
 ## Usage
 
 ### Building and testing
-This library uses Bazel as its build system.  To compile, make sure you have Bazel installed on your system and run:
+This library uses Bazel as its build system.  To compile, make sure you have [Bazel installed on your system](https://bazel.build/install) and run:
 ```bash
 bazel build ...
 ```
