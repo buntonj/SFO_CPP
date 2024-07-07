@@ -12,11 +12,11 @@
 
 template<typename E> class GreedyAlgorithm{
     private:
-        double curr_val = 0;  // current value of elements in set
-        bool constraint_saturated = false;
         int MAXITER = 15;
 
     public:
+        double curr_val = 0;  // current value of elements in set
+        bool constraint_saturated = false;
         std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         std::unordered_set<constraint::Constraint<E>*> constraint_set;
@@ -67,13 +67,17 @@ template<typename E> class GreedyAlgorithm{
 
         void clear_set(){
             this->curr_set.clear();
-            this->curr_val = 0;
+            this->curr_val = this->cost_function(curr_set);
             this->constraint_saturated = false;
         }
 
         void run_greedy(){
-            if(this->n < 1){
+            if(!this->ground_set){
                 std::cout<< "No ground set given!" << std::endl;
+                return;
+            }
+            if(!this->cost_function){
+                std::cout<< "No cost function given!" << std::endl;
                 return;
             }
             if(! (this->cost_benefit)){
@@ -112,7 +116,7 @@ template<typename E> class GreedyAlgorithm{
 
     private:
         void greedy_step(){
-            std::unordered_set <E*> test_set(curr_set);
+            std::unordered_set <E*> test_set(this->curr_set);
             E* best_el;
             double best_marginal_val = -DBL_MAX;
             double candidate_marginal_val = 0;

@@ -108,12 +108,12 @@ template<typename E> class compare_elements{
 template<typename E>
 using LazyGreedyQueue = std::priority_queue<std::pair<E*, double>,std::vector<std::pair<E*,double>>,compare_elements<E>>;
 
-std::unordered_set<Element*>* generate_ground_set(int &N){
-    // helper function to generate a ground set of N elements
+std::unordered_set<Element*>* generate_ground_set(int &set_size){
+    // helper function to generate a ground set of set_size elements
     std::unordered_set<Element*> *V = new std::unordered_set<Element*>;
     Element* el;
     int id = 0;
-    for (int i=0; i<N; i++){
+    for (int i=0; i<set_size; i++){
         id++;
         el = new Element;
         el->id = id;
