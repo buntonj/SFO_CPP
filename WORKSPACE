@@ -1,4 +1,7 @@
+workspace(name = "sfo_cpp")
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 http_archive(
     name = "aspect_gcc_toolchain",
@@ -18,4 +21,11 @@ load("@aspect_gcc_toolchain//toolchain:defs.bzl", "gcc_register_toolchain", "ARC
 gcc_register_toolchain(
     name = "gcc_toolchain_x86_64",
     target_arch = ARCHS.x86_64,
+)
+
+# Add gtest from the git repository
+git_repository(
+    name = "gtest",
+    remote = "https://github.com/google/googletest",
+    branch = "v1.10.x",
 )

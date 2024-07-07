@@ -1,0 +1,7 @@
+cc_test(
+    name = "test_library",
+    srcs = ["test_monotone_greedy_gtest.cpp"],
+    deps = ["//:sfo_cpp",
+            "@googletest//:gtest_main"],
+    copts = ["/std:c++17"]
+)

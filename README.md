@@ -30,7 +30,8 @@ bazel build ...
 ```
 which will build and install both the headers library and the tests into the `/build` directory.  If you would like to run one of the example scripts (such as `test_monotone_greedy` or `test_non_monotone_greedy`), use `bazel run` in the following way:
 ```bash
-bazel run //tests:test_monotone_greedy
+bazel run //:test_monotone
+bazel run //:test_non_monotone
 ```
 
 ### Usage in other contexts
