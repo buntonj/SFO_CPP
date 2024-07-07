@@ -58,11 +58,11 @@ namespace constraint{
             }
 
             bool is_saturated(std::unordered_set<E*> &test_set){
-                return std::abs(modular(test_set) - budget) < __FLT_EPSILON__;
+                return std::abs(modular(test_set) - budget) < std::numeric_limits<float>::epsilon();
             }
 
             bool is_saturated(E *el){
-                return std::abs(modular(el) - budget) < __FLT_EPSILON__;
+                return std::abs(modular(el) - budget) < std::numeric_limits<float>::epsilon();
             }
 
             double value(std::unordered_set<E*> &test_set){

@@ -8,9 +8,19 @@ cc_library(
 )
 
 cc_binary(
-    name = "binary",
-    srcs = glob(["test/*.cpp"]),
+    name = "test_monotone",
+    srcs = ["tests/test_monotone_greedy.cpp"],
     deps = [
         ":sfo_cpp"
     ],
+    copts = ["/std:c++17"]
+)
+
+cc_binary(
+    name = "test_non_monotone",
+    srcs = ["tests/test_non_monotone_greedy.cpp"],
+    deps = [
+        ":sfo_cpp"
+    ],
+    copts = ["/std:c++17"]
 )

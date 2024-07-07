@@ -22,13 +22,13 @@ $$ A\subseteq B \quad \implies\quad F(A) \leq F(B) $$
 For such functions, greedy algorithms are both efficient and provably near-optimal when the set $\mathcal{C}$ is some simple form of constraint, such as cardinality, knapsack, matroid, independence system, etc.
 
 ## Usage
-To install, clone the directory, and while in the root folder use `cmake` to install it and build some basic tests:
+This library uses Bazel as its build system.  To compile, make sure you have Bazel installed on your system and run:
 ```bash
-mkdir build && cd build
-cmake .. -DBUILD_SFO_TESTS=ON
-cmake --build .
+bazel build ...
 ```
-Once installed, basic usage follows four simple steps:
+which will build and install both the headers library and the tests into the `/build` directory.
+
+Basic usage follows four simple steps:
 
 1) Define a  `std::unordered_set` of "ground set" elements to summarize.
 2) Import and create the appropriate `GreedyAlgorithm` object from this library.
