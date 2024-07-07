@@ -10,14 +10,14 @@
 
 template<typename E> class StochasticGreedyAlgorithm{
     private:
-        double curr_val = 0;  // current value of elements in set
         int b;
-        bool constraint_saturated = false;
         int MAXITER = 15;
         std::vector<E*> ground_set_idxs;  // this maps us from an integer to an element
         std::unordered_set<E*> to_erase;  // used to discard and no longer randomly sample elements
 
     public:
+        double curr_val = 0;  // current value of elements in set
+        bool constraint_saturated = false;
         std::unordered_set<E*> *ground_set;
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         std::unordered_set<constraint::Constraint<E>*> constraint_set;
@@ -76,14 +76,30 @@ template<typename E> class StochasticGreedyAlgorithm{
             this->curr_val = 0;
             this->constraint_saturated = false;
         }
+    
+        bool is_configured(){
+            if(!this->ground_set){
+                std::cout<< "No ground set given!" << std::endl;
+                return false;
+            } else if (!this->cost_function){
+                std::cout<< "No cost function given!" << std::endl;
+                return false;
+            } else if (!(find_single_cardinality() && constraint_set.size() == 1)){
+                std::cout<<"Constraint is not a single cardinality constraint, stochastic greedy is not valid."<<std::endl;
+                return false;
+            } else {
+                return true;
+            }
+        }
 
         void run_greedy(){
-            if (epsilon <= 0){
-                std::cout<< "Epsilon value not set/valid, using default 0.25..." <<std::endl;
-                this->epsilon = 0.25;
-            }
-            // stochastic greedy is only valid for cardinality constraints, so check
-            if (constraint::Cardinality<E>* k = find_single_cardinality(); k != nullptr && constraint_set.size() == 1){
+            if (this->is_configured()){
+                if (epsilon <= 0){
+                    std::cout<< "Epsilon value not set/valid, using default 0.25..." <<std::endl;
+                    this->epsilon = 0.25;
+                }
+                // stochastic greedy is only valid for cardinality constraints, so check
+                constraint::Cardinality<E>* k = find_single_cardinality();
                 this->b = k->budget;
                 this->curr_val = 0;
                 // first, compute how many samples to randomly pull at each step
@@ -100,7 +116,7 @@ template<typename E> class StochasticGreedyAlgorithm{
                     print_status();
                 }
             } else {
-                std::cout<<"Constraint is not a single cardinality constraint, stochastic greedy is not valid."<<std::endl;
+                return;
             }
         };
 

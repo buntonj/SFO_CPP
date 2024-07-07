@@ -67,43 +67,53 @@ template<typename E> class GreedyAlgorithm{
 
         void clear_set(){
             this->curr_set.clear();
-            this->curr_val = this->cost_function(curr_set);
+            if(this->cost_function){
+                this->curr_val = this->cost_function->operator()(curr_set);
+            } else {
+                this->curr_val = 0;
+            }
             this->constraint_saturated = false;
         }
 
-        void run_greedy(){
+        bool is_configured(){
             if(!this->ground_set){
                 std::cout<< "No ground set given!" << std::endl;
-                return;
-            }
-            if(!this->cost_function){
+                return false;
+            } else if(!this->cost_function){
                 std::cout<< "No cost function given!" << std::endl;
-                return;
-            }
-            if(! (this->cost_benefit)){
-                // if not asking for cost-benefit alg, run vanilla greedy
-                int counter=0;
-                while (!constraint_saturated && counter < MAXITER){
-                    counter++;
-                    greedy_step();
-                    std::cout<< "Performed VANILLA greedy algorithm iteration: " << counter << std::endl;
-                    print_status();
-                }
-            } else if (constraint::Knapsack<E>* k = find_single_knapsack(); (k != nullptr)){
-                // if asking for cost-benefit, check that constraint is a knapsack one
-                // if it is, k becomes a pointer to derived Constraint::Knapsack type
-                int counter=0;
-                double budget = 0;
-                while (!constraint_saturated && counter < MAXITER){
-                    counter++;
-                    cost_benefit_greedy_step(k, budget);
-                    std::cout<< "Performed VANILLA CB greedy algorithm iteration: " << counter << std::endl;
-                    print_status();
-                }
+                return false;
             } else {
-                // if we were asking for CB but dynamically casting to a knapsack didn't work
-                std::cout<< "Requested CB greedy with invalid constraint type." << std::endl;
-                return;
+                return true;
+            }
+        }
+
+        void run_greedy(){
+            if(this->is_configured()){
+                if(!(this->cost_benefit)){
+                    // if not asking for cost-benefit alg, run vanilla greedy
+                    int counter=0;
+                    while (!constraint_saturated && counter < MAXITER){
+                        counter++;
+                        greedy_step();
+                        std::cout<< "Performed VANILLA greedy algorithm iteration: " << counter << std::endl;
+                        print_status();
+                    }
+                } else if (constraint::Knapsack<E>* k = find_single_knapsack(); (k != nullptr)){
+                    // if asking for cost-benefit, check that constraint is a knapsack one
+                    // if it is, k becomes a pointer to derived Constraint::Knapsack type
+                    int counter=0;
+                    double budget = 0;
+                    while (!constraint_saturated && counter < MAXITER){
+                        counter++;
+                        cost_benefit_greedy_step(k, budget);
+                        std::cout<< "Performed VANILLA CB greedy algorithm iteration: " << counter << std::endl;
+                        print_status();
+                    }
+                } else {
+                    // if we were asking for CB but dynamically casting to a knapsack didn't work
+                    std::cout<< "Requested CB greedy with invalid constraint type." << std::endl;
+                    return;
+                }
             }
         };
 

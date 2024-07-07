@@ -47,6 +47,7 @@ class ModularCost : public testing::Test{
         }
 
         // Available test variables
+        
         int set_size = 10;
         int budget = 3;
         // Ground set.
@@ -86,6 +87,87 @@ TEST_F(ModularCost, VanillaGreedy){
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
+TEST_F(ModularCost, VanillaGreedyCostBenefit){
+    // now, let's create an algorithm object to operate on that ground set.
+    GreedyAlgorithm<Element> greedy;
+
+    greedy.set_ground_set(ground_set);
+    greedy.add_constraint(cardinality_constraint);
+    greedy.set_cost_function(modular_cost);
+
+    greedy.set_cost_benefit(true);
+
+    greedy.run_greedy();
+
+    // Constraint should be saturated.
+    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_EQ(greedy.curr_set.size(), budget);
+
+    // We should have the optimal cost, since the cost function is modular.
+    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
+}
+
+TEST_F(ModularCost, LazyGreedyTest){
+    // now, let's create an algorithm object to operate on that ground set.
+    LazyGreedyAlgorithm<Element> greedy;
+
+    greedy.set_ground_set(ground_set);
+    greedy.add_constraint(cardinality_constraint);
+    greedy.set_cost_function(modular_cost);
+
+    greedy.set_cost_benefit(false);
+
+    greedy.run_greedy();
+
+    // Constraint should be saturated.
+    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_EQ(greedy.curr_set.size(), budget);
+
+    // We should have the optimal cost, since the cost function is modular.
+    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
+}
+
+TEST_F(ModularCost, LazyGreedyCostBenefitTest){
+    // now, let's create an algorithm object to operate on that ground set.
+    LazyGreedyAlgorithm<Element> greedy;
+
+    greedy.set_ground_set(ground_set);
+    greedy.add_constraint(cardinality_constraint);
+    greedy.set_cost_function(modular_cost);
+
+    greedy.set_cost_benefit(true);
+
+    greedy.run_greedy();
+
+    // Constraint should be saturated.
+    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_EQ(greedy.curr_set.size(), budget);
+
+    // We should have the optimal cost, since the cost function is modular.
+    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
+}
+
+TEST_F(ModularCost, StochasticGreedy){
+    // now, let's create an algorithm object to operate on that ground set.
+    StochasticGreedyAlgorithm<Element> greedy;
+
+    greedy.set_ground_set(ground_set);
+    greedy.add_constraint(cardinality_constraint);
+    greedy.set_cost_function(modular_cost);
+
+    greedy.run_greedy();
+
+    // Constraint should be saturated.
+    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_EQ(greedy.curr_set.size(), budget);
+
+    // We should have the optimal cost, since the cost function is modular.
+    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
+}
 
 // int main(){
 //     int set_size = 10;
@@ -95,7 +177,7 @@ TEST_F(ModularCost, VanillaGreedy){
 
 //     // now, let's create some algorithm objects to operate on that ground set
 //     GreedyAlgorithm<Element> greedy;
-//     LazyGreedy<Element> lazygreedy;
+//     LazyGreedyAlgorithm<Element> lazygreedy;
 //     StochasticGreedyAlgorithm<Element> stochasticgreedy;
 //     LazierThanLazyGreedy<Element> ltlgreedy;
 //     double epsilon = 0.05;  /// parameter needed for stochastic/lazier than lazy algorithms

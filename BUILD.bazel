@@ -9,7 +9,7 @@ cc_library(
 
 # cc_binary(
 #     name = "test_monotone",
-#     srcs = ["tests/test_monotone_greedy.cpp"],
+#     srcs = ["test_monotone_greedy.cpp"],
 #     deps = [
 #         ":sfo_cpp"
 #     ],

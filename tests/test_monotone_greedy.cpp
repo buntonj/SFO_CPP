@@ -23,7 +23,7 @@ int main(){
 
     // now, let's create some algorithm objects to operate on that ground set
     GreedyAlgorithm<Element> greedy;
-    LazyGreedy<Element> lazygreedy;
+    LazyGreedyAlgorithm<Element> lazygreedy;
     StochasticGreedyAlgorithm<Element> stochasticgreedy;
     LazierThanLazyGreedy<Element> ltlgreedy;
     double epsilon = 0.05;  /// parameter needed for stochastic/lazier than lazy algorithms

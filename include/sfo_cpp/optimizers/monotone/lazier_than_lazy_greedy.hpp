@@ -11,14 +11,14 @@
 
 template<typename E> class LazierThanLazyGreedy{
     private:
-        double curr_val = 0;  // current value of elements in set
         int b;
-        bool constraint_saturated = false;
         int MAXITER = 15;
         std::vector<E*> ground_set_idxs;  // this maps us from an integer to an element
         std::unordered_map<E*, double> marginals;  // will hold marginal values of all elements we have evaluated
 
     public:
+        double curr_val = 0;  // current value of elements in set
+        bool constraint_saturated = false;
         std::unordered_set<E*> *ground_set;
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         std::unordered_set<constraint::Constraint<E>*> constraint_set;

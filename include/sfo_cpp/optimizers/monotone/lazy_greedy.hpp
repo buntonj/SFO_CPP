@@ -9,14 +9,14 @@
 #include "../../sfo_concepts/constraint.hpp"
 
 
-template<typename E> class LazyGreedy{
+template<typename E> class LazyGreedyAlgorithm{
     private:
-        double curr_val = 0;  // current value of elements in set
-        bool constraint_saturated = false;
         int MAXITER = 15;
         LazyGreedyQueue<E> marginals; // will hold marginals
 
     public:
+        double curr_val = 0;  // current value of elements in set
+        bool constraint_saturated = false;
         std::unordered_set<E*> *ground_set;  // pointer to ground set of elements
         int n = 0;  // holds size of ground set, indexed from 0 to n-1
         std::unordered_set<constraint::Constraint<E>*> constraint_set;
