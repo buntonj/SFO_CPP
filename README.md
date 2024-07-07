@@ -22,12 +22,18 @@ $$ A\subseteq B \quad \implies\quad F(A) \leq F(B) $$
 For such functions, greedy algorithms are both efficient and provably near-optimal when the set $\mathcal{C}$ is some simple form of constraint, such as cardinality, knapsack, matroid, independence system, etc.
 
 ## Usage
+
+### Building and testing
 This library uses Bazel as its build system.  To compile, make sure you have Bazel installed on your system and run:
 ```bash
 bazel build ...
 ```
-which will build and install both the headers library and the tests into the `/build` directory.
+which will build and install both the headers library and the tests into the `/build` directory.  If you would like to run one of the example scripts (such as `test_monotone_greedy` or `test_non_monotone_greedy`), use `bazel run` in the following way:
+```bash
+bazel run //tests:test_monotone_greedy
+```
 
+### Usage in other contexts
 Basic usage follows four simple steps:
 
 1) Define a  `std::unordered_set` of "ground set" elements to summarize.
