@@ -1,0 +1,14 @@
+[
+    cc_test(
+        name = src[:-len(".cpp")],
+        size = "small",
+        srcs = [src],
+        args = ["--gtest_output"],
+        copts = ["-std=c++17"],
+        deps = [
+            "//:sfo_cpp",
+            "@googletest//:gtest_main",
+        ],
+    )
+    for src in glob(["test_*.cpp"])
+]

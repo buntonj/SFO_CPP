@@ -1,8 +1,8 @@
 cc_library(
     name = "sfo_cpp",
-    hdrs= glob(["include/**/*.hpp"]),
+    hdrs = glob(["sfo_cpp/**/*.hpp"]),
     includes = ["include"],
     visibility = [
         "//visibility:public",
-    ]
+    ],
 )
