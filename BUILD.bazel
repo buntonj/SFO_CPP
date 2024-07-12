@@ -1,6 +1,8 @@
 cc_library(
     name = "sfo_cpp",
     hdrs = glob(["sfo_cpp/**/*.hpp"]),
+    copts = ["-std=c++17"],  # un-comment for *nix
+    # copts = ["/std:c++17"],  # un-comment for windows
     includes = ["include"],
     visibility = [
         "//visibility:public",
