@@ -9,7 +9,7 @@
 #include "../../sfo_concepts/constraint.hpp"
 
 
-template<typename E> class LazyGreedyAlgorithm{
+template<typename E> class LazyGreedy{
     private:
         int MAXITER = 15;
         LazyGreedyQueue<E> marginals; // will hold marginals

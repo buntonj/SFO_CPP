@@ -66,10 +66,10 @@ protected:
     double optimal_value = 0;
 };
 
-TEST_F(ModularCost, VanillaGreedy)
+TEST_F(ModularCost, VanillaGreedyTest)
 {
-    // now, let's create an algorithm object to operate on that ground set.
-    GreedyAlgorithm<Element> greedy;
+    // Create an algorithm object.
+    VanillaGreedy<Element> greedy;
 
     greedy.set_ground_set(ground_set);
     greedy.add_constraint(cardinality_constraint);
@@ -88,10 +88,10 @@ TEST_F(ModularCost, VanillaGreedy)
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
-TEST_F(ModularCost, VanillaGreedyCostBenefit)
+TEST_F(ModularCost, VanillaGreedyCostBenefitTest)
 {
-    // now, let's create an algorithm object to operate on that ground set.
-    GreedyAlgorithm<Element> greedy;
+    // Create an algorithm object.
+    VanillaGreedy<Element> greedy;
 
     greedy.set_ground_set(ground_set);
     greedy.add_constraint(cardinality_constraint);
@@ -112,8 +112,8 @@ TEST_F(ModularCost, VanillaGreedyCostBenefit)
 
 TEST_F(ModularCost, LazyGreedyTest)
 {
-    // now, let's create an algorithm object to operate on that ground set.
-    LazyGreedyAlgorithm<Element> greedy;
+    // Create an algorithm object.
+    LazyGreedy<Element> greedy;
 
     greedy.set_ground_set(ground_set);
     greedy.add_constraint(cardinality_constraint);
@@ -135,7 +135,7 @@ TEST_F(ModularCost, LazyGreedyTest)
 TEST_F(ModularCost, LazyGreedyCostBenefitTest)
 {
     // now, let's create an algorithm object to operate on that ground set.
-    LazyGreedyAlgorithm<Element> greedy;
+    LazyGreedy<Element> greedy;
 
     greedy.set_ground_set(ground_set);
     greedy.add_constraint(cardinality_constraint);
@@ -154,10 +154,10 @@ TEST_F(ModularCost, LazyGreedyCostBenefitTest)
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
-TEST_F(ModularCost, StochasticGreedy)
+TEST_F(ModularCost, StochasticGreedyTest)
 {
     // now, let's create an algorithm object to operate on that ground set.
-    StochasticGreedyAlgorithm<Element> greedy;
+    StochasticGreedy<Element> greedy;
 
     greedy.set_ground_set(ground_set);
     greedy.add_constraint(cardinality_constraint);
@@ -174,7 +174,7 @@ TEST_F(ModularCost, StochasticGreedy)
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
-TEST_F(ModularCost, LazierThanLazyGreedy)
+TEST_F(ModularCost, LazierThanLazyGreedyTest)
 {
     // now, let's create an algorithm object to operate on that ground set.
     LazierThanLazyGreedy<Element> greedy;
