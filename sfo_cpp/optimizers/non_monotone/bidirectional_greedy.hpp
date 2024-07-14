@@ -11,7 +11,6 @@ template <typename E>
 class BidirectionalGreedy
 {
 private:
-    double curr_val = 0; // current value of elements in set
     int MAXITER = 15;
     bool randomized = false;
     std::unordered_set<E *> top_set;
@@ -24,6 +23,7 @@ public:
     int n = 0;                           // holds size of ground set, indexed from 0 to n-1
     costfunction::CostFunction<E> *cost_function;
     std::unordered_set<E *> curr_set;
+    double curr_val = 0; // current value of elements in set
 
     void set_ground_set(std::unordered_set<E *> *V)
     {
