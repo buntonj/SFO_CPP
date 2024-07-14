@@ -28,11 +28,15 @@ This library uses Bazel as its build system.  To compile, make sure you have [Ba
 ```bash
 bazel build ...
 ```
-which will build and install both the headers library and the tests into the `/build` directory.  If you would like to run one of the example scripts (such as `test_monotone_greedy` or `test_non_monotone_greedy`), use `bazel run` in the following way:
+which will build and install both the headers library and the tests into the `/build` directory.  If you would like to run the tests, you can test the library with:
 ```bash
-bazel run //:test_monotone
-bazel run //:test_non_monotone
+bazel test ...
 ```
+Alternatively, you can run a specific test via:
+```bash
+bazel test sfo_cpp/tests/test_monotone_greedy
+```
+or similar, for a different test.
 
 ### Usage in other contexts
 Basic usage follows four simple steps:
