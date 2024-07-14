@@ -15,8 +15,8 @@
 #include "sfo_cpp/sfo_concepts/cost_function.hpp"
 #include "sfo_cpp/sfo_concepts/constraint.hpp"
 
-// Elements are templated out, include basic "element" class for testing
-#include "sfo_cpp/sfo_concepts/element.hpp"
+// Elements are templated out, include a basic "element" class for testing
+#include "sfo_cpp/tests/demo_element.hpp"
 
 class ModularCost : public testing::Test
 {
