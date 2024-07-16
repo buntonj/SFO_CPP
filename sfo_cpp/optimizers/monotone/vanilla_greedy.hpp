@@ -6,9 +6,6 @@
 #include "../../sfo_concepts/cost_function.hpp"
 #include "../../sfo_concepts/constraint.hpp"
 
-// WIP pared-down interface
-// was allowing too many different instantiations/calls which was getting unclear/redundant/sloppy
-
 template <typename E>
 class VanillaGreedy
 {
@@ -113,6 +110,7 @@ public:
     {
         if (this->is_configured())
         {
+            this->clear_set();
             if (!(this->cost_benefit))
             {
                 // if not asking for cost-benefit alg, run vanilla greedy

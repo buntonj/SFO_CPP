@@ -23,18 +23,21 @@ protected:
             weights.insert({el, value * value});
         }
 
+        this->cost_function = new costfunction::Modular<Element>(weights);
+
         // Extract the optimal value and set (largest `budget` elements.)
         std::vector<std::pair<Element *, double>> top_elements(budget);
+
         // Quickly compute the optimal set (largest )
         std::partial_sort_copy(weights.begin(), weights.end(), top_elements.begin(), top_elements.end(), [](std::pair<Element *, double> const &l, std::pair<Element *, double> const &r)
                                { return l.second > r.second; });
 
-        optimal_value = 0;
-        optimal_set.clear();
+        this->optimal_value = 0;
+        this->optimal_set.clear();
         for (auto &[element, val] : top_elements)
         {
-            optimal_value = optimal_value + val;
-            optimal_set.insert(element);
+            this->optimal_value = this->optimal_value + val;
+            this->optimal_set.insert(element);
         }
     }
 
@@ -50,7 +53,7 @@ protected:
 
     // Modular cost function.
     std::unordered_map<Element *, double> weights;
-    costfunction::CostFunction<Element> *cost_function = new costfunction::Modular<Element>(weights); // modular
+    costfunction::CostFunction<Element> *cost_function; // modular
 
     // Optimal cost and value for this case.
     std::unordered_set<Element *> optimal_set{};
@@ -70,6 +73,9 @@ protected:
             value++;
             weights.insert({el, value * value});
         }
+
+        this->modular = costfunction::Modular(weights);                     // modular part of cost
+        this->cost_function = new costfunction::SquareRootModular(modular); // square root of modular
 
         // Extract the optimal value and set (largest `budget` elements.)
         std::vector<std::pair<Element *, double>> top_elements(budget);
@@ -100,8 +106,8 @@ protected:
 
     // Modular cost function.
     std::unordered_map<Element *, double> weights;
-    costfunction::Modular<Element> modular = costfunction::Modular(weights);                           // modular part of cost
-    costfunction::CostFunction<Element> *cost_function = new costfunction::SquareRootModular(modular); // square root of modular
+    costfunction::Modular<Element> modular;             // modular part of cost
+    costfunction::CostFunction<Element> *cost_function; // square root of modular
 
     // Optimal cost and value for this case.
     std::unordered_set<Element *> optimal_set{};

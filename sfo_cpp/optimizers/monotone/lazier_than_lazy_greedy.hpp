@@ -106,8 +106,8 @@ public:
         // stochastic greedy is only valid for cardinality constraints, so check
         if (epsilon <= 0)
         {
-            std::cout << "Epsilon is not set/valid, using default value of 0.25..." << std::endl;
-            this->epsilon = 0.25;
+            std::cout << "Epsilon is not set/valid, using default value of 0.05..." << std::endl;
+            this->epsilon = 0.05;
         }
         if (constraint::Cardinality<E> *k = find_single_cardinality(); k != nullptr)
         {
