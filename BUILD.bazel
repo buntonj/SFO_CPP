@@ -1,26 +1,25 @@
 cc_library(
     name = "sfo_cpp",
-    hdrs= glob(["include/**/*.hpp"]),
+    hdrs = glob(["sfo_cpp/**/*.hpp"]),
+    # copts = ["-std=c++17"],  # un-comment for *nix
+    copts = ["/std:c++17"],  # un-comment for windows
     includes = ["include"],
     visibility = [
         "//visibility:public",
-    ]
+    ],
 )
 
-cc_binary(
-    name = "test_monotone",
-    srcs = ["tests/test_monotone_greedy.cpp"],
-    deps = [
-        ":sfo_cpp"
-    ],
-    copts = ["/std:c++17"]
-)
-
-cc_binary(
-    name = "test_non_monotone",
-    srcs = ["tests/test_non_monotone_greedy.cpp"],
-    deps = [
-        ":sfo_cpp"
-    ],
-    copts = ["/std:c++17"]
-)
+[
+    cc_test(
+        name = src[:-len(".cpp")],
+        size = "small",
+        srcs = [src] + glob(["sfo_cpp/tests/test_utils/*.hpp"]),
+        # copts = ["-std=c++17"],  # un-comment for *nix
+        copts = ["/std:c++17"],  # un-comment for windows
+        deps = [
+            "//:sfo_cpp",
+            "@googletest//:gtest_main",
+        ],
+    )
+    for src in glob(["sfo_cpp/tests/test_*.cpp"])
+]

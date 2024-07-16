@@ -1,3 +1,5 @@
+workspace(name = "sfo_cpp")
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
@@ -13,7 +15,7 @@ load("@aspect_gcc_toolchain//toolchain:repositories.bzl", "gcc_toolchain_depende
 
 gcc_toolchain_dependencies()
 
-load("@aspect_gcc_toolchain//toolchain:defs.bzl", "gcc_register_toolchain", "ARCHS")
+load("@aspect_gcc_toolchain//toolchain:defs.bzl", "ARCHS", "gcc_register_toolchain")
 
 gcc_register_toolchain(
     name = "gcc_toolchain_x86_64",
