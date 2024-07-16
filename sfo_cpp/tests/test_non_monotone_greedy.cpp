@@ -1,5 +1,9 @@
+#include <gtest/gtest.h>
+
 #include <iostream>
 #include <vector>
+#include <numeric>
+#include <algorithm>
 
 // include the algorithms we want
 #include "sfo_cpp/optimizers/non_monotone/bidirectional_greedy.hpp"
@@ -8,86 +12,73 @@
 #include "sfo_cpp/sfo_concepts/cost_function.hpp"
 #include "sfo_cpp/sfo_concepts/constraint.hpp"
 
-// Elements are templated out, include basic "element" class for testing
+// Elements are templated out, include a basic "element" class for testing
 #include "sfo_cpp/tests/test_utils/demo_element.hpp"
 
-int main()
+// Convenience fixtures for testing various cost functions
+#include "sfo_cpp/tests/test_utils/test_fixtures.hpp"
+
+TEST_F(ConstrainedModularCost, BidirectionalGreedyTest)
 {
-    int set_size = 10;
-    int budget = 3;
-    // first, let's create a ground set
-    std::unordered_set<Element *> *ground_set = generate_ground_set(set_size);
+    // Create an algorithm object.
+    BidirectionalGreedy<Element> greedy;
 
-    // now, let's create some algorithm objects to operate on that ground set
-    BidirectionalGreedy<Element> bdgreedy;
+    greedy.set_ground_set(ground_set);
+    greedy.set_cost_function(cost_function);
 
-    // define weights for a modular function
-    std::unordered_map<Element *, double> weights;
-    for (auto el : (*ground_set))
-    {
-        weights.insert({el, float(el->id) * float(el->id)});
-    }
+    greedy.run_greedy();
 
-    // Next, build some cost functions
-    costfunction::CostFunction<Element> *cardinality = new costfunction::Modular<Element>;           // cardinality
-    costfunction::CostFunction<Element> *modular = new costfunction::Modular<Element>(weights);      // modular
-    costfunction::CostFunction<Element> *sqrtmodular = new costfunction::SquareRootModular<Element>; // square root modular
-    double bias = double(set_size / 2);
-    double high = std::sqrt(set_size - bias);
-    costfunction::CostFunction<Element> *centeredsqrtmodular = new costfunction::CenteredSqrtModular<Element>(bias, high); // square root modular
+    // We should have the optimal cost, since the cost function is modular.
+    // Since the problem is unconstrained and monotone modular, the optimal should just be all elements.
+    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->operator()(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_EQ(greedy.curr_set, *ground_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
+}
 
-    // then, we build some constraints to add to the problems
-    constraint::Constraint<Element> *card = new constraint::Knapsack<Element>(budget);   // cardinality at knapsack level
-    constraint::Constraint<Element> *crd = new constraint::Cardinality<Element>(budget); // cardinality as subclass
+TEST_F(SqrtModularCost, BidirectionalGreedyTest)
+{
+    // Create an algorithm object.
+    BidirectionalGreedy<Element> greedy;
 
-    // run the algorithms one after another
-    // modular cost function first (greedy algorithm is provably optimal)
-    bdgreedy.set_ground_set(ground_set);
-    bdgreedy.set_randomized(false);
-    std::cout << "Successfully built greedy algorithms." << std::endl;
+    greedy.set_ground_set(ground_set);
+    greedy.set_cost_function(cost_function);
 
-    std::cout << std::endl
-              << "****************RUNNING MODULAR COSTS*************" << std::endl;
-    std::cout << "==============BIDIRECTIONAL GREEDY==============" << std::endl;
-    bdgreedy.clear_set();
-    bdgreedy.run_greedy();
-    std::cout << "==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
-    bdgreedy.clear_set();
-    bdgreedy.set_randomized(true);
-    bdgreedy.run_greedy();
+    greedy.run_greedy();
 
-    // square root modular (strictly submodular cost, greedy algorithm near-optimal)
-    std::cout << std::endl
-              << "******************SQRT MODULAR COST*****************" << std::endl;
-    bdgreedy.set_cost_function(sqrtmodular);
+    // We should have the optimal cost, since the cost function is modular.
+    // Since the problem is unconstrained and monotone modular, the optimal should just be all elements.
+    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->operator()(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_EQ(greedy.curr_set, *ground_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
+}
 
-    std::cout << "==============BIDIRECTIONAL GREEDY==============" << std::endl;
-    bdgreedy.clear_set();
-    bdgreedy.set_randomized(false);
-    bdgreedy.run_greedy();
-    std::cout << "==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
-    bdgreedy.clear_set();
-    bdgreedy.set_randomized(true);
-    bdgreedy.run_greedy();
+TEST_F(ConstrainedModularCost, RandomizedBidirectionalGreedyTest)
+{
+    // Create an algorithm object.
+    BidirectionalGreedy<Element> greedy;
 
-    // square root modular (strictly submodular cost, greedy algorithm near-optimal)
-    std::cout << std::endl
-              << "******************(CENTERED) SQRT MODULAR COST*****************" << std::endl;
-    bdgreedy.set_cost_function(centeredsqrtmodular);
+    greedy.set_ground_set(ground_set);
+    greedy.set_cost_function(cost_function);
+    greedy.set_randomized(true);
 
-    std::cout << "==============BIDIRECTIONAL GREEDY==============" << std::endl;
-    bdgreedy.clear_set();
-    bdgreedy.set_randomized(false);
-    bdgreedy.run_greedy();
-    std::cout << "==============RANDOMIZED BIDIRECTIONAL GREEDY==============" << std::endl;
-    bdgreedy.clear_set();
-    bdgreedy.set_randomized(true);
-    bdgreedy.run_greedy();
+    greedy.run_greedy();
 
-    // cleanup stack memory
-    delete cardinality;
-    delete modular;
-    delete sqrtmodular;
-    delete card;
-    delete crd;
+    // We should have the optimal cost, since the cost function is modular.
+    // Since the problem is unconstrained and monotone modular, the optimal should just be all elements.
+    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->operator()(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_EQ(greedy.curr_set, *ground_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
+}
+
+TEST_F(SqrtModularCost, RandomizedBidirectionalGreedyTest)
+{
+    // Create an algorithm object.
+    BidirectionalGreedy<Element> greedy;
+
+    greedy.set_ground_set(ground_set);
+    greedy.set_cost_function(cost_function);
+
+    greedy.run_greedy();
+
+    // We should have the optimal cost, since the cost function is modular.
+    // Since the problem is unconstrained and monotone modular, the optimal should just be all elements.
+    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->operator()(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_EQ(greedy.curr_set, *ground_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
