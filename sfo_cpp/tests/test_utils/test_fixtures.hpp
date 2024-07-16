@@ -9,7 +9,7 @@
 // Elements are templated out, include a basic "element" class for testing
 #include "sfo_cpp/tests/test_utils/demo_element.hpp"
 
-class ModularCost : public testing::Test
+class ConstrainedModularCost : public testing::Test
 {
 protected:
     void SetUp() override

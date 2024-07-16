@@ -19,7 +19,7 @@
 #include "sfo_cpp/tests/test_utils/demo_element.hpp"
 #include "sfo_cpp/tests/test_utils/test_fixtures.hpp"
 
-TEST_F(ModularCost, VanillaGreedyTest)
+TEST_F(ConstrainedModularCost, VanillaGreedyTest)
 {
     // Create an algorithm object.
     VanillaGreedy<Element> greedy;
@@ -41,7 +41,7 @@ TEST_F(ModularCost, VanillaGreedyTest)
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
-TEST_F(ModularCost, VanillaGreedyCostBenefitTest)
+TEST_F(ConstrainedModularCost, VanillaGreedyCostBenefitTest)
 {
     // Create an algorithm object.
     VanillaGreedy<Element> greedy;
@@ -63,7 +63,7 @@ TEST_F(ModularCost, VanillaGreedyCostBenefitTest)
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
-TEST_F(ModularCost, LazyGreedyTest)
+TEST_F(ConstrainedModularCost, LazyGreedyTest)
 {
     // Create an algorithm object.
     LazyGreedy<Element> greedy;
@@ -85,7 +85,7 @@ TEST_F(ModularCost, LazyGreedyTest)
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
-TEST_F(ModularCost, LazyGreedyCostBenefitTest)
+TEST_F(ConstrainedModularCost, LazyGreedyCostBenefitTest)
 {
     // now, let's create an algorithm object to operate on that ground set.
     LazyGreedy<Element> greedy;
@@ -107,7 +107,7 @@ TEST_F(ModularCost, LazyGreedyCostBenefitTest)
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
-TEST_F(ModularCost, StochasticGreedyTest)
+TEST_F(ConstrainedModularCost, StochasticGreedyTest)
 {
     // now, let's create an algorithm object to operate on that ground set.
     StochasticGreedy<Element> greedy;
@@ -127,7 +127,7 @@ TEST_F(ModularCost, StochasticGreedyTest)
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
-TEST_F(ModularCost, LazierThanLazyGreedyTest)
+TEST_F(ConstrainedModularCost, LazierThanLazyGreedyTest)
 {
     // now, let's create an algorithm object to operate on that ground set.
     LazierThanLazyGreedy<Element> greedy;

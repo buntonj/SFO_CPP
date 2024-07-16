@@ -9,7 +9,7 @@
 #include "sfo_cpp/sfo_concepts/constraint.hpp"
 
 // Elements are templated out, include basic "element" class for testing
-#include "sfo_cpp/tests/demo_element.hpp"
+#include "sfo_cpp/tests/test_utils/demo_element.hpp"
 
 int main()
 {

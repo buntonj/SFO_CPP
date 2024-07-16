@@ -18,7 +18,7 @@
 // Convenience fixtures for testing various cost functions
 #include "sfo_cpp/tests/test_utils/test_fixtures.hpp"
 
-TEST_F(ModularCost, BidirectionalGreedyTest)
+TEST_F(ConstrainedModularCost, BidirectionalGreedyTest)
 {
     // Create an algorithm object.
     BidirectionalGreedy<Element> greedy;
@@ -29,6 +29,7 @@ TEST_F(ModularCost, BidirectionalGreedyTest)
     greedy.run_greedy();
 
     // We should have the optimal cost, since the cost function is modular.
+    std::cerr << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
