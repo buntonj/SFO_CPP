@@ -55,11 +55,11 @@ TEST_F(ConstrainedModularCost, VanillaGreedyCostBenefitTest)
     greedy.run_greedy();
 
     // Constraint should be saturated.
-    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_TRUE(greedy.constraint_saturated);
     EXPECT_EQ(greedy.curr_set.size(), budget);
 
     // We should have the optimal cost, since the cost function is modular.
-    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, optimal_value) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -77,11 +77,11 @@ TEST_F(ConstrainedModularCost, LazyGreedyTest)
     greedy.run_greedy();
 
     // Constraint should be saturated.
-    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_TRUE(greedy.constraint_saturated);
     EXPECT_EQ(greedy.curr_set.size(), budget);
 
     // We should have the optimal cost, since the cost function is modular.
-    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, optimal_value) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -99,11 +99,11 @@ TEST_F(ConstrainedModularCost, LazyGreedyCostBenefitTest)
     greedy.run_greedy();
 
     // Constraint should be saturated.
-    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_TRUE(greedy.constraint_saturated);
     EXPECT_EQ(greedy.curr_set.size(), budget);
 
     // We should have the optimal cost, since the cost function is modular.
-    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, optimal_value) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -119,11 +119,11 @@ TEST_F(ConstrainedModularCost, StochasticGreedyTest)
     greedy.run_greedy();
 
     // Constraint should be saturated.
-    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_TRUE(greedy.constraint_saturated);
     EXPECT_EQ(greedy.curr_set.size(), budget);
 
     // We should have the optimal cost, since the cost function is modular.
-    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, optimal_value) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -139,11 +139,11 @@ TEST_F(ConstrainedModularCost, LazierThanLazyGreedyTest)
     greedy.run_greedy();
 
     // Constraint should be saturated.
-    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_TRUE(greedy.constraint_saturated);
     EXPECT_EQ(greedy.curr_set.size(), budget);
 
     // We should have the optimal cost, since the cost function is modular.
-    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, optimal_value) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -163,11 +163,11 @@ TEST_F(SqrtModularCost, VanillaGreedyTest)
     greedy.run_greedy();
 
     // Constraint should be saturated.
-    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_TRUE(greedy.constraint_saturated);
     EXPECT_EQ(greedy.curr_set.size(), budget);
 
-    // We should have the optimal cost, since the cost function is modular.
-    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    // We should have the optimal cost, since the cost function is sufficiently simple.
+    EXPECT_FLOAT_EQ(greedy.curr_val, optimal_value) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -185,10 +185,10 @@ TEST_F(SqrtModularCost, VanillaGreedyCostBenefitTest)
     greedy.run_greedy();
 
     // Constraint should be saturated.
-    EXPECT_EQ(greedy.constraint_saturated, true);
+    EXPECT_TRUE(greedy.constraint_saturated);
     EXPECT_EQ(greedy.curr_set.size(), budget);
 
-    // We should have the optimal cost, since the cost function is modular.
-    ASSERT_NEAR(greedy.curr_val, optimal_value, std::numeric_limits<float>::epsilon()) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    // We should have the optimal cost, since the cost function is sufficiently simple.
+    EXPECT_FLOAT_EQ(greedy.curr_val, optimal_value) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, optimal_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
