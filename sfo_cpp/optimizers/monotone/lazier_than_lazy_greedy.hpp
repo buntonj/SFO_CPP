@@ -248,7 +248,7 @@ private:
                 continue;
             }
 
-            candidate.second = cost_function->operator()(test_set) - curr_val;
+            candidate.second = cost_function->evaluate(test_set) - curr_val;
 
             // put updated candidate back into priority queue
             sampled_marginals.pop();

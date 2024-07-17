@@ -239,7 +239,7 @@ private:
             }
 
             // update marginal value
-            candidate_marginal_val = cost_function->operator()(test_set) - curr_val;
+            candidate_marginal_val = cost_function->evaluate(test_set) - curr_val;
 
             // keep running track of highest marginal value element
             if (candidate_marginal_val > best_marginal_val)

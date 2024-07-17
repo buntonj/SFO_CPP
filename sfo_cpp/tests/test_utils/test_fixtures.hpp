@@ -74,8 +74,8 @@ protected:
             weights.insert({el, value * value});
         }
 
-        this->modular = costfunction::Modular(weights);                     // modular part of cost
-        this->cost_function = new costfunction::SquareRootModular(modular); // square root of modular
+        this->modular = costfunction::Modular(weights);               // modular part of cost
+        this->cost_function = new costfunction::SqrtModular(modular); // square root of modular
 
         // Extract the optimal value and set (largest `budget` elements.)
         std::vector<std::pair<Element *, double>> top_elements(budget);

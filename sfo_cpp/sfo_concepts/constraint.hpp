@@ -61,32 +61,32 @@ namespace constraint
 
         bool test_membership(E *el)
         {
-            return modular(el) <= budget;
+            return modular.evaluate(el) <= budget;
         }
 
         bool test_membership(std::unordered_set<E *> &set)
         {
-            return modular(set) <= budget;
+            return modular.evaluate(set) <= budget;
         }
 
         bool is_saturated(std::unordered_set<E *> &test_set)
         {
-            return std::abs(modular(test_set) - budget) < std::numeric_limits<float>::epsilon();
+            return std::abs(modular.evaluate(test_set) - budget) < std::numeric_limits<float>::epsilon();
         }
 
         bool is_saturated(E *el)
         {
-            return std::abs(modular(el) - budget) < std::numeric_limits<float>::epsilon();
+            return std::abs(modular.evaluate(el) - budget) < std::numeric_limits<float>::epsilon();
         }
 
         double value(std::unordered_set<E *> &test_set)
         {
-            return modular(test_set);
+            return modular.evaluate(test_set);
         }
 
         double value(E *el)
         {
-            return modular(el);
+            return modular.evaluate(el);
         }
     };
 
