@@ -30,7 +30,7 @@ TEST_F(ConstrainedModularCost, BidirectionalGreedyTest)
 
     // We should have the optimal cost, since the cost function is modular.
     // Since the problem is unconstrained and monotone modular, the optimal should just be all elements.
-    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->operator()(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->evaluate(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, *ground_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -46,7 +46,7 @@ TEST_F(SqrtModularCost, BidirectionalGreedyTest)
 
     // We should have the optimal cost, since the cost function is modular.
     // Since the problem is unconstrained and monotone modular, the optimal should just be all elements.
-    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->operator()(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->evaluate(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, *ground_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -63,7 +63,7 @@ TEST_F(ConstrainedModularCost, RandomizedBidirectionalGreedyTest)
 
     // We should have the optimal cost, since the cost function is modular.
     // Since the problem is unconstrained and monotone modular, the optimal should just be all elements.
-    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->operator()(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->evaluate(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, *ground_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }
 
@@ -79,6 +79,6 @@ TEST_F(SqrtModularCost, RandomizedBidirectionalGreedyTest)
 
     // We should have the optimal cost, since the cost function is modular.
     // Since the problem is unconstrained and monotone modular, the optimal should just be all elements.
-    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->operator()(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
+    EXPECT_FLOAT_EQ(greedy.curr_val, cost_function->evaluate(*ground_set)) << "Optimizer result: " << greedy.curr_val << " Optimal: " << optimal_value;
     EXPECT_EQ(greedy.curr_set, *ground_set) << "Optimizer set: " << greedy.curr_set << " Optimal: " << optimal_set;
 }

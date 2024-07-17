@@ -58,7 +58,7 @@ public:
         {
             this->top_set = *ground_set;
             this->bottom_set.clear();
-            this->top_val = cost_function->operator()(top_set);
+            this->top_val = cost_function->evaluate(top_set);
             this->bottom_val = 0;
             this->MAXITER = this->n;
             int counter = 0;
@@ -111,11 +111,11 @@ private:
         test_set = bottom_set;
 
         test_set.insert(el);
-        bottom_gain = cost_function->operator()(test_set) - bottom_val;
+        bottom_gain = cost_function->evaluate(test_set) - bottom_val;
 
         test_set = top_set;
         test_set.erase(el);
-        top_gain = cost_function->operator()(test_set) - top_val;
+        top_gain = cost_function->evaluate(test_set) - top_val;
 
         if (this->randomized)
         {

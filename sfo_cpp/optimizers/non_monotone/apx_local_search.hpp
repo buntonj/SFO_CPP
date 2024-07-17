@@ -106,7 +106,7 @@ public:
         {
             // for each constraint, run a local search, save values
             candidate = local_search_procedure();
-            test_value = cost_function->operator()(candidates[i]);
+            test_value = cost_function->evaluate(candidates[i]);
 
             // check for new maximum
             if (test_value > value)
@@ -139,7 +139,7 @@ private:
             if (this->check_constraints(*it))
             {
                 // if element is feasible, compute its value
-                test_val = cost_function->operator()(*it);
+                test_val = cost_function->evaluate(*it);
 
                 // save it if it is better than current best
                 if (test_val > curr_val)
@@ -178,7 +178,7 @@ private:
             }
 
             // update marginal value
-            candidate_marginal_val = cost_function->operator()(test_set) - curr_val;
+            candidate_marginal_val = cost_function->evaluate(test_set) - curr_val;
 
             // keep running track of highest marginal value element
             if (candidate_marginal_val > best_marginal_val)

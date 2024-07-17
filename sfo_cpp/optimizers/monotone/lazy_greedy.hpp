@@ -163,7 +163,7 @@ private:
 
             // build out candidate pair
             candidate.first = *el;
-            candidate.second = cost_function->operator()(test_set) - curr_val;
+            candidate.second = cost_function->evaluate(test_set) - curr_val;
 
             marginals.push(candidate);
         }
@@ -219,7 +219,7 @@ private:
             }
 
             candidate.first = *el;
-            pure_vals.insert({candidate.first, cost_function->operator()(test_set) - curr_val});
+            pure_vals.insert({candidate.first, cost_function->evaluate(test_set) - curr_val});
             pure_knaps.insert({candidate.first, K->value(test_set) - curr_budget});
             candidate.second = pure_vals[candidate.first] / pure_knaps[candidate.first];
 
@@ -271,7 +271,7 @@ private:
                 continue; // leave element out from now on
             }
 
-            candidate.second = cost_function->operator()(test_set) - curr_val;
+            candidate.second = cost_function->evaluate(test_set) - curr_val;
 
             // put updated candidate back into priority queue
             marginals.pop();
@@ -328,7 +328,7 @@ private:
                 continue; // leave element out from now on
             }
 
-            pure_vals.insert({candidate.first, cost_function->operator()(test_set) - curr_val});
+            pure_vals.insert({candidate.first, cost_function->evaluate(test_set) - curr_val});
             pure_knaps.insert({candidate.first, K->value(test_set) - curr_budget});
             candidate.second = pure_vals[candidate.first] / pure_knaps[candidate.first];
 

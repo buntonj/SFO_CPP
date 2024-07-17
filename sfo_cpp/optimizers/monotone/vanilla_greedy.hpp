@@ -79,7 +79,7 @@ public:
         this->curr_set.clear();
         if (this->cost_function)
         {
-            this->curr_val = this->cost_function->operator()(curr_set);
+            this->curr_val = this->cost_function->evaluate(curr_set);
         }
         else
         {
@@ -180,7 +180,7 @@ private:
             }
 
             // update marginal value
-            candidate_marginal_val = cost_function->operator()(test_set) - curr_val;
+            candidate_marginal_val = cost_function->evaluate(test_set) - curr_val;
 
             // keep running track of highest marginal value element
             if (candidate_marginal_val > best_marginal_val)
@@ -234,7 +234,7 @@ private:
 
             // update marginal value
             candidate_marginal_cost = K->value(test_set) - curr_budget;
-            candidate_marginal_val = cost_function->operator()(test_set) - curr_val;
+            candidate_marginal_val = cost_function->evaluate(test_set) - curr_val;
 
             // keep running track of highest marginal value element
             if (candidate_marginal_val / candidate_marginal_cost > best_marginal_val / best_marginal_cost)

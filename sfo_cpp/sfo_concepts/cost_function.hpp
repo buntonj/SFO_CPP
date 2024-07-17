@@ -13,8 +13,8 @@ namespace costfunction
         // Cost functions are given POINTERS to ELEMENTS, returning an evaluation
     public:
         virtual ~CostFunction(){}; // destructor
-        virtual double operator()(std::unordered_set<E *> &set) = 0;
-        virtual double operator()(E *&el) = 0;
+        virtual double evaluate(std::unordered_set<E *> &set) = 0;
+        virtual double evaluate(E *&el) = 0;
 
         // marginal gain functions
         virtual double marginal_gain(E *&el, std::unordered_set<E *> &context)
@@ -24,7 +24,7 @@ namespace costfunction
              */
             std::unordered_set<E *> testset(context);
             testset.insert(el);
-            return this->operator()(testset) - this->operator()(context);
+            return this->evaluate(testset) - this->evaluate(context);
         }
         virtual double marginal_gain(E *&el, std::unordered_set<E *> &context, double &curr_val)
         {
@@ -33,7 +33,7 @@ namespace costfunction
              */
             std::unordered_set<E *> testset(context);
             testset.insert(el);
-            return this->operator()(testset) - curr_val;
+            return this->evaluate(testset) - curr_val;
         }
     };
 
@@ -59,7 +59,7 @@ namespace costfunction
             weights.insert({nullptr, 1});
         }
 
-        double operator()(std::unordered_set<E *> &set)
+        double evaluate(std::unordered_set<E *> &set)
         {
             if (weights.size() == 1)
             {
@@ -73,7 +73,7 @@ namespace costfunction
             return val;
         }
 
-        double operator()(E *&el)
+        double evaluate(E *&el)
         {
             if (weights.size() == 1)
             {
@@ -87,29 +87,29 @@ namespace costfunction
     };
 
     template <typename E>
-    class SquareRootModular : public CostFunction<E>
+    class SqrtModular : public CostFunction<E>
     {
     public:
         Modular<E> modular_part;
 
-        SquareRootModular(const Modular<E> &m)
+        SqrtModular(const Modular<E> &m)
         {
             modular_part = m;
         }
 
-        SquareRootModular()
+        SqrtModular()
         {
             modular_part = Modular<E>();
         }
 
-        double operator()(std::unordered_set<E *> &set)
+        double evaluate(std::unordered_set<E *> &set)
         {
-            return std::sqrt(modular_part(set));
+            return std::sqrt(modular_part.evaluate(set));
         }
 
-        double operator()(E *&el)
+        double evaluate(E *&el)
         {
-            return std::sqrt(modular_part(el));
+            return std::sqrt(modular_part.evaluate(el));
         }
     };
 
@@ -136,12 +136,12 @@ namespace costfunction
 
         double operator()(std::unordered_set<E *> &set)
         {
-            return high - std::sqrt(std::abs(modular_part(set) - bias));
+            return high - std::sqrt(std::abs(modular_part.evaluate(set) - bias));
         }
 
         double operator()(E *&el)
         {
-            return high - std::sqrt(std::abs(modular_part(el) - bias));
+            return high - std::sqrt(std::abs(modular_part.evaluate(el) - bias));
         }
     };
 }
