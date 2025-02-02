@@ -1,4 +1,4 @@
-name: cargo test the_tub
+name: Run C++ tests
 
 run-name: Testing triggered by ${{ github.event_name }} off branch ${{ github.ref }}."
 on:
