@@ -121,7 +121,7 @@ The `CostFunction` and `Constraint` objects are handed to one of the Algorithm o
     * **Valid constraints**: None
     * **Valid cost functions**: Monotone, non-monotone
 
-    This algorithm is only valid for **unconstrained problems** ($\mathcal{C} = V$), but returns a set $\hat{S}\subseteq V$ with $F(\hat{S}) \geq \frac{1}{3}F(S^{*})$ for _any_ submodular function $F$.  It also has a flag `randomized` that, if set to `true`, will run the randomized variant that returns a set with $F(\hat{S}) \geq\frac{1}{2}F(S^{*})$ guarantee in _expectation_.
+    This algorithm is only valid for **unconstrained problems** ($\mathcal{C} = V$), but returns a set $\hat{S}\subseteq V$ with $F(\hat{S}) \geq \frac{1}{3}F(S^*)$ for _any_ submodular function $F$.  It also has a flag `randomized` that, if set to `true`, will run the randomized variant that returns a set with $F(\hat{S}) \geq\frac{1}{2}F(S^{*})$ guarantee in _expectation_.
     
     Reference [here.](https://theory.epfl.ch/moranfe/Publications/FOCS2012.pdf)
 
@@ -129,7 +129,7 @@ The `CostFunction` and `Constraint` objects are handed to one of the Algorithm o
     * **Valid constraints**: k-Matroid
     * **Valid cost functions**: Monotone, non-monotone
 
-    **WIP**
+    This algorithm is 
 
     Reference [here.](https://arxiv.org/pdf/0902.0353.pdf)
 

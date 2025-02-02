@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <vector>
 #include <cfloat>
+#include <algorithm> // for set difference
 #include "../../sfo_concepts/element.hpp"
 #include "../../sfo_concepts/cost_function.hpp"
 #include "../../sfo_concepts/constraint.hpp"
@@ -106,14 +107,19 @@ public:
         {
             // for each constraint, run a local search, save values
             candidate = local_search_procedure();
-            test_value = cost_function->evaluate(candidates[i]);
+            test_value = cost_function->evaluate(candidate);
 
-            // check for new maximum
+            // check for new maximum, if we found it save it
             if (test_value > value)
             {
                 value = test_value;
                 curr_set = candidate;
             }
+
+            // remove the selected elements from the ground set
+            curr_ground_set = std::set_difference(curr_ground_set.begin(), curr_ground_set.end(),
+                                                  candidate.begin(), candidate.end(),
+                                                  std::inserter(curr_ground_set, curr_ground_set.end()));
         }
     }
 
@@ -150,57 +156,8 @@ private:
             }
         }
 
-        // track marginal_delete, marginal_exchange in priority queues?
+        // test_el now holds the max value element in the ground set
     }
-
-    void greedy_step()
-    {
-        std::unordered_set<E *> test_set(curr_set);
-        E *best_el;
-        double best_marginal_val = -DBL_MAX;
-        double candidate_marginal_val = 0;
-
-        for (auto el = ground_set->begin(); el != ground_set->end(); ++el)
-        {
-            // note that el is a POINTER to a POINTER to an element in the ground set
-            test_set = curr_set;
-
-            if (curr_set.find(*el) != curr_set.end())
-            {
-                continue;
-            }
-
-            test_set.insert(*el);
-
-            if (!constraint->test_membership(test_set))
-            {
-                continue;
-            }
-
-            // update marginal value
-            candidate_marginal_val = cost_function->evaluate(test_set) - curr_val;
-
-            // keep running track of highest marginal value element
-            if (candidate_marginal_val > best_marginal_val)
-            {
-                best_el = *el;
-                best_marginal_val = candidate_marginal_val;
-            }
-        }
-
-        // check if we could even add an element to set
-        if (best_marginal_val < 0)
-        {
-            constraint_saturated = true; // no more elements could be feasibly added
-        }
-        else
-        {
-            // update the current set, value, and budget value with the found item
-            curr_set.insert(best_el);
-            curr_val = curr_val + best_marginal_val;
-            constraint_saturated = constraint->is_saturated(curr_set); // check if constraint is now saturated
-        }
-    };
 
     constraint::Knapsack<E> *find_single_knapsack()
     {
