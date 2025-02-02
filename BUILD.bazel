@@ -2,7 +2,7 @@ cc_library(
     name = "sfo_cpp",
     hdrs = glob(["sfo_cpp/**/*.hpp"]),
     # copts = ["-std=c++17"],  # un-comment for *nix
-    copts = ["/std:c++17"],  # un-comment for windows
+    # copts = ["/std:c++17"],  # un-comment for windows
     includes = ["include"],
     visibility = [
         "//visibility:public",
@@ -15,7 +15,7 @@ cc_library(
         size = "small",
         srcs = [src] + glob(["sfo_cpp/tests/test_utils/*.hpp"]),
         # copts = ["-std=c++17"],  # un-comment for *nix
-        copts = ["/std:c++17"],  # un-comment for windows
+        # copts = ["/std:c++17"],  # un-comment for windows
         deps = [
             "//:sfo_cpp",
             "@googletest//:gtest_main",
