@@ -11,7 +11,7 @@ on:
       - main
 
 jobs:
-  test-the-tub:
+  test-sfo-cpp:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Tests triggered by a ${{ github.event_name }} off branch ${{ github.ref }}."
