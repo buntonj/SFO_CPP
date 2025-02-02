@@ -1,3 +1,4 @@
 """Bazel module dependences"""
 module(name = "sfo_cpp")
-bazel_dep(name = "googletest", version="1.14.0")
+bazel_dep(name = "googletest", version = "1.15.2")
+bazel_dep(name = "hermetic_cc_toolchain", version = "3.1.1")
