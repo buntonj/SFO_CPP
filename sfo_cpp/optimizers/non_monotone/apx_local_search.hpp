@@ -132,9 +132,10 @@ public:
     };
 
 private:
+    // TODO: This should return a subset candidate
     void local_search_procedure()
     {
-        double curr_val = -DBL_MAX;
+        double curr_val = DBL_MIN;
         double test_val;
         std::unordered_set<E *> test_set;
         E *test_el;
@@ -157,6 +158,99 @@ private:
         }
 
         // test_el now holds the max value element in the ground set
+        std::unordered_set<E *> curr_set({test_el});
+
+        // Start with exchange and delete assumed impossible
+        bool successful_exchange = true;
+        bool successful_delete = true;
+
+        double gain_threshold = 1.0 + epsilon / pow(double(curr_ground_set.size()), 4.0);
+
+        while (successful_exchange || successful_delete)
+        {
+            // Indicate no successful ops have happened
+            successful_exchange = false;
+            successful_delete = false;
+
+            // Check ability to delete element from current set while increasing value
+            test_set = curr_set;
+            for (auto el = curr_set.begin(); el != curr_set.end(); ++el)
+            {
+                test_set.remove(el);
+                test_val = cost_function->evaluate(test_set);
+
+                // If we find a valuable delete operation, use it immediately
+                if (test_val >= gain_threshold * curr_val)
+                {
+                    // Swap to the new set and value
+                    curr_set = test_set;
+                    curr_val = test_val;
+                    // Indicate we successfully deleted an element, break from trying to do so
+                    successful_delete = true;
+                    break
+                }
+            }
+
+            // check ability to exchange element from set while increasing value
+            // Loop over all elements in ground set
+            // Look for UP TO size(constraint_set) elements to remove (one if one matroid)
+            for (auto el = curr_ground_set.begin(); el != curr_ground_set.end(); ++el)
+            {
+                test_set = curr_set;
+
+                // grab the element, check feasibility
+                test_set.insert(el);
+                if
+                    ~check_constraints(test_set)
+                    {
+                        // If infeasible, there must be an subset in the k-neighborhood that is feasible
+                        // need to search k-neighborhood of curr_set,
+                        // i.e., all size <=k subsets of curr_set that might cause curr_set + el - subset to be feasible
+                        // likely a recursive function here
+                        test_val = best_feasible_removable_count(test_set, size(constraint_set));
+                        // need to also return the subset
+                    }
+                else
+                {
+                    // element can be feasibly added
+                    test_val = cost_function->evaluate(test_set);
+                }
+
+                if (test_val >= gain_threshold * curr_val)
+                {
+                    // if sufficient gain, just do the exchange immediately and go to next apx local search iteration
+                    curr_set = test_set;
+                    curr_val = test_val;
+                    successful_exchange = true;
+                    break
+                }
+            }
+        }
+    }
+
+    double best_feasible_removable_count(std::unordered_set<E *> test_set, size_t remove_budget)
+    {
+        double curr_value = check_constraints(test_set) ? cost_function->evaluate(test_set) : DBL_MIN;
+        if ((remove_budget == 0))
+        {
+            // Base case: we can't remove any more elements
+            return curr_value;
+        }
+        else
+        {
+            // if we can remove more elements
+            // iterate over remaining elements trying to remove em
+            std::unordered_set<E *> new_set = test_set;
+            for (auto el : test_set.begin(); el != test_set.end(); ++el)
+            {
+                // try removing this element, see what the best value is
+                new_set = test_set;
+                new_set.remove(el);
+                curr_value = max(curr_value, best_feasible_removable_count(new_set, remove_budget - 1));
+            }
+            // Return best value we found from our exchange operation hunt
+            return curr_value;
+        }
     }
 
     constraint::Knapsack<E> *find_single_knapsack()
